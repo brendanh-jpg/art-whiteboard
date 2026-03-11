@@ -15,6 +15,8 @@ export type ToolType =
   | 'pan'
   | 'wallpaperBrush';
 
+export type SprayStyle = 'mist' | 'splatter' | 'fan' | 'drip' | 'neon' | 'confetti' | 'stamps';
+
 export type ShapeType = 'star' | 'heart' | 'lightning' | 'cloud' | 'speechBubble';
 
 export interface ToolState {
@@ -28,6 +30,7 @@ export interface ToolState {
   fontFamily: string;
   sprayRadius: number;
   sprayDensity: number;
+  sprayStyle: SprayStyle;
   selectedWallpaper: string | null;
   wallpaperBrushSize: number;
   setTool: (tool: ToolType) => void;
@@ -40,6 +43,7 @@ export interface ToolState {
   setFontFamily: (font: string) => void;
   setSprayRadius: (radius: number) => void;
   setSprayDensity: (density: number) => void;
+  setSprayStyle: (style: SprayStyle) => void;
   setSelectedWallpaper: (wp: string | null) => void;
   setWallpaperBrushSize: (size: number) => void;
 }
@@ -55,6 +59,7 @@ export const useToolStore = create<ToolState>((set) => ({
   fontFamily: "'Comic Neue', cursive",
   sprayRadius: 20,
   sprayDensity: 30,
+  sprayStyle: 'mist',
   selectedWallpaper: null,
   wallpaperBrushSize: 80,
   setTool: (tool) => set({ activeTool: tool }),
@@ -71,6 +76,7 @@ export const useToolStore = create<ToolState>((set) => ({
   setFontFamily: (font) => set({ fontFamily: font }),
   setSprayRadius: (radius) => set({ sprayRadius: radius }),
   setSprayDensity: (density) => set({ sprayDensity: density }),
+  setSprayStyle: (style) => set({ sprayStyle: style }),
   setSelectedWallpaper: (wp) => set({ selectedWallpaper: wp }),
   setWallpaperBrushSize: (size) => set({ wallpaperBrushSize: size }),
 }));

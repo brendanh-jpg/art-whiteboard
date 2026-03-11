@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { SprayStyle } from './toolStore';
 
 export interface DrawLine {
   id: string;
@@ -8,7 +9,10 @@ export interface DrawLine {
   strokeWidth: number;
   opacity: number;
   layerId: string;
-  particles?: Array<{ x: number; y: number; size: number; color: string; opacity: number }>;
+  // For spray paint particles
+  sprayStyle?: SprayStyle;
+  particles?: Array<{ x: number; y: number; size: number; color: string; opacity: number; type?: string; width?: number; height?: number; rotation?: number; char?: string }>;
+  // For text
   text?: string;
   fontSize?: number;
   fontFamily?: string;

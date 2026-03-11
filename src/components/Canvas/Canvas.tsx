@@ -6,7 +6,7 @@ import { useToolStore } from '../../stores/toolStore';
 import DrawingLayer from './DrawingLayer';
 import StickerLayer from './StickerLayer';
 import CursorOverlay from './CursorOverlay';
-import { generateSprayParticles, generateGlitterParticles, getRainbowColor } from '../../utils/particles';
+import { generateStyledSprayParticles, generateGlitterParticles, getRainbowColor } from '../../utils/particles';
 import { broadcastCursor, broadcastDrawStart, broadcastDrawUpdate, broadcastDrawEnd, broadcastStickerAdd } from '../../utils/multiplayer';
 
 let idCounter = 0;
@@ -42,7 +42,7 @@ export default function Canvas() {
   } = useCanvasStore();
 
   const {
-    activeTool, brushSize, opacity, color, sprayRadius, sprayDensity,
+    activeTool, brushSize, opacity, color, sprayRadius, sprayDensity, sprayStyle,
     fontSize, fontFamily, activeShape, addRecentColor,
     selectedWallpaper, wallpaperBrushSize,
   } = useToolStore();
@@ -143,7 +143,7 @@ export default function Canvas() {
     }
 
     if (activeTool === 'sprayPaint') {
-      const particles = generateSprayParticles(pos.x, pos.y, sprayRadius, sprayDensity, color);
+      const particles = generateStyledSprayParticles(pos.x, pos.y, sprayRadius, sprayDensity, color, sprayStyle);
       const line = {
         id,
         tool: 'sprayPaint',
@@ -153,6 +153,7 @@ export default function Canvas() {
         opacity,
         layerId: activeLayerId,
         particles,
+        sprayStyle,
       };
       setCurrentLine(line);
       broadcastDrawStart(line);
@@ -189,7 +190,7 @@ export default function Canvas() {
     };
     setCurrentLine(line);
     broadcastDrawStart(line);
-  }, [activeTool, color, brushSize, opacity, activeLayerId, getPointerPosition, sprayRadius, sprayDensity, activeShape, fontSize, fontFamily, selectedWallpaper, wallpaperBrushSize]);
+  }, [activeTool, color, brushSize, opacity, activeLayerId, getPointerPosition, sprayRadius, sprayDensity, sprayStyle, activeShape, fontSize, fontFamily, selectedWallpaper, wallpaperBrushSize]);
 
   const handleMouseMove = useCallback(() => {
     const pos = getPointerPosition();
@@ -203,7 +204,7 @@ export default function Canvas() {
     if (!current) return;
 
     if (current.tool === 'sprayPaint') {
-      const newParticles = generateSprayParticles(pos.x, pos.y, sprayRadius, sprayDensity * 0.3, color);
+      const newParticles = generateStyledSprayParticles(pos.x, pos.y, sprayRadius, sprayDensity * 0.3, color, current.sprayStyle || 'mist');
       const newPoints = [...current.points, pos.x, pos.y];
       const allParticles = [...(current.particles || []), ...newParticles];
       updateCurrentLine(newPoints, allParticles);

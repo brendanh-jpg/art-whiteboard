@@ -1,5 +1,6 @@
 import React from 'react';
 import { useToolStore } from '../../stores/toolStore';
+import type { SprayStyle } from '../../stores/toolStore';
 import type { ToolbarSize } from './ToolButton';
 
 interface BrushSettingsProps {
@@ -26,6 +27,42 @@ function SliderRow({ label, value, display, min, max, onChange, trackClass }: {
   );
 }
 
+const SPRAY_PRESETS: { style: SprayStyle; emoji: string; label: string }[] = [
+  { style: 'mist', emoji: '🌫️', label: 'Fine Mist' },
+  { style: 'splatter', emoji: '💥', label: 'Heavy Splatter' },
+  { style: 'fan', emoji: '🌊', label: 'Fan Spray' },
+  { style: 'drip', emoji: '🩸', label: 'Graffiti Drip' },
+  { style: 'neon', emoji: '✨', label: 'Neon Glow' },
+  { style: 'confetti', emoji: '🎊', label: 'Confetti' },
+  { style: 'stamps', emoji: '♣', label: 'Stamps' },
+];
+
+function SprayStylePicker() {
+  const { sprayStyle, setSprayStyle } = useToolStore();
+
+  return (
+    <div className="space-y-1.5">
+      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Style</span>
+      <div className="grid grid-cols-4 gap-1.5">
+        {SPRAY_PRESETS.map((preset) => (
+          <button
+            key={preset.style}
+            onClick={() => setSprayStyle(preset.style)}
+            className={`flex flex-col items-center gap-0.5 rounded-lg px-1 py-1.5 text-center transition-all border-2 ${
+              sprayStyle === preset.style
+                ? 'border-indigo-400 bg-indigo-50 shadow-sm'
+                : 'border-transparent bg-slate-50 hover:bg-slate-100'
+            }`}
+          >
+            <span className="text-base leading-none">{preset.emoji}</span>
+            <span className="text-[9px] font-semibold text-slate-600 leading-tight">{preset.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function BrushSettings({ size = 'md' }: BrushSettingsProps) {
   const { brushSize, setBrushSize, opacity, setOpacity, activeTool,
     sprayRadius, setSprayRadius, sprayDensity, setSprayDensity, fontSize, setFontSize } = useToolStore();
@@ -40,6 +77,7 @@ export default function BrushSettings({ size = 'md' }: BrushSettingsProps) {
       )}
       {activeTool === 'sprayPaint' && (
         <>
+          <SprayStylePicker />
           <SliderRow label="Radius" value={sprayRadius} display={`${sprayRadius}`} min={5} max={60} onChange={setSprayRadius} trackClass="track-orange" />
           <SliderRow label="Density" value={sprayDensity} display={`${sprayDensity}`} min={5} max={80} onChange={setSprayDensity} trackClass="track-orange" />
         </>

@@ -71,16 +71,72 @@ function renderLine(line: DrawLine) {
   if ((line.tool === 'sprayPaint' || line.tool === 'glitterPen') && line.particles) {
     return (
       <React.Fragment key={key}>
-        {line.particles.map((p, i) => (
-          <Circle
-            key={`${key}-p-${i}`}
-            x={p.x}
-            y={p.y}
-            radius={p.size}
-            fill={p.color}
-            opacity={p.opacity}
-          />
-        ))}
+        {line.particles.map((p, i) => {
+          if (p.type === 'neonHalo') {
+            return (
+              <Circle
+                key={`${key}-p-${i}`}
+                x={p.x}
+                y={p.y}
+                radius={p.size}
+                fill={p.color}
+                opacity={p.opacity}
+              />
+            );
+          }
+          if (p.type === 'neonCenter') {
+            return (
+              <Circle
+                key={`${key}-p-${i}`}
+                x={p.x}
+                y={p.y}
+                radius={p.size}
+                fill={p.color}
+                opacity={p.opacity}
+              />
+            );
+          }
+          if (p.type === 'confettiRect') {
+            return (
+              <Rect
+                key={`${key}-p-${i}`}
+                x={p.x - (p.width || 3) / 2}
+                y={p.y - (p.height || 2) / 2}
+                width={p.width || 3}
+                height={p.height || 2}
+                fill={p.color}
+                opacity={p.opacity}
+                rotation={p.rotation || 0}
+              />
+            );
+          }
+          if (p.type === 'stampChar' && p.char) {
+            return (
+              <KonvaText
+                key={`${key}-p-${i}`}
+                x={p.x}
+                y={p.y}
+                text={p.char}
+                fontSize={p.size}
+                fill={p.color}
+                opacity={p.opacity}
+                rotation={p.rotation || 0}
+                offsetX={p.size / 2}
+                offsetY={p.size / 2}
+              />
+            );
+          }
+          return (
+            <Circle
+              key={`${key}-p-${i}`}
+              x={p.x}
+              y={p.y}
+              radius={p.size}
+              fill={p.color}
+              opacity={p.opacity}
+            />
+          );
+        })}
       </React.Fragment>
     );
   }
