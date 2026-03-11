@@ -22,8 +22,8 @@ export default function LayerItem({
       onClick={onSelect}
       className="flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer transition-all"
       style={{
-        background: isActive ? 'rgba(129,140,248,0.12)' : 'rgba(255,255,255,0.03)',
-        border: isActive ? '1px solid rgba(129,140,248,0.35)' : '1px solid rgba(255,255,255,0.06)',
+        background: isActive ? 'rgba(129,140,248,0.1)' : 'rgba(0,0,0,0.02)',
+        border: isActive ? '1px solid rgba(129,140,248,0.35)' : '1px solid rgba(0,0,0,0.06)',
       }}
     >
       <button
@@ -41,14 +41,14 @@ export default function LayerItem({
           onBlur={() => { onRename(editName); setIsEditing(false); }}
           onKeyDown={(e) => { if (e.key === 'Enter') { onRename(editName); setIsEditing(false); } }}
           className="flex-1 text-xs rounded px-1.5 py-0.5 outline-none font-semibold"
-          style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}
+          style={{ background: 'rgba(0,0,0,0.05)', color: '#1e293b', border: '1px solid rgba(0,0,0,0.12)' }}
           autoFocus
           onClick={(e) => e.stopPropagation()}
         />
       ) : (
         <span
           className="flex-1 text-xs font-semibold truncate"
-          style={{ color: isActive ? 'rgba(129,140,248,0.9)' : 'rgba(255,255,255,0.7)' }}
+          style={{ color: isActive ? 'rgba(129,140,248,0.9)' : '#475569' }}
           onDoubleClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
           title="Double-click to rename"
         >
@@ -59,7 +59,7 @@ export default function LayerItem({
       {canRemove && (
         <button
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
-          className="w-5 h-5 flex items-center justify-center text-[10px] rounded cursor-pointer transition-colors text-[rgba(255,255,255,0.25)] hover:text-red-400"
+          className="w-5 h-5 flex items-center justify-center text-[10px] rounded cursor-pointer transition-colors text-slate-400 hover:text-red-500"
           title="Remove layer"
         >
           ✕

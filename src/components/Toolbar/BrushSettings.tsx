@@ -14,8 +14,8 @@ function SliderRow({ label, value, display, min, max, onChange, trackClass }: {
   return (
     <div className="space-y-1.5">
       <div className="flex justify-between items-center">
-        <span className="text-[10px] font-semibold text-[rgba(255,255,255,0.4)] uppercase tracking-wider">{label}</span>
-        <span className="text-[11px] font-semibold text-[rgba(255,255,255,0.7)] tabular-nums">{display}</span>
+        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{label}</span>
+        <span className="text-[11px] font-semibold text-slate-600 tabular-nums">{display}</span>
       </div>
       <input
         type="range" min={min} max={max} value={value}

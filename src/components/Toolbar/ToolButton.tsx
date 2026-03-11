@@ -28,8 +28,8 @@ export default function ToolButton({ icon, label, shortcut, active, size = 'md',
             ${btnH} w-full flex items-center gap-2.5 px-3 rounded-xl
             ${iconSize} transition-all duration-150 select-none cursor-pointer
             ${active
-              ? 'bg-accent/20 text-accent shadow-[0_0_0_1px_rgba(129,140,248,0.5)] tool-bounce'
-              : 'text-[rgba(255,255,255,0.65)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[rgba(255,255,255,0.9)]'
+              ? 'bg-indigo-100 text-indigo-600 shadow-[0_0_0_1px_rgba(129,140,248,0.5)] tool-bounce'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
             }
           `}
         >
@@ -38,7 +38,7 @@ export default function ToolButton({ icon, label, shortcut, active, size = 'md',
             {label}
           </span>
           {shortcut && (
-            <span className="ml-auto text-[9px] opacity-30 font-mono bg-white/10 px-1 py-0.5 rounded">{shortcut}</span>
+            <span className="ml-auto text-[9px] opacity-40 font-mono bg-slate-200 px-1 py-0.5 rounded">{shortcut}</span>
           )}
         </button>
       </Tooltip>
@@ -53,8 +53,8 @@ export default function ToolButton({ icon, label, shortcut, active, size = 'md',
           ${squareSize} flex items-center justify-center rounded-xl
           ${iconSize} transition-all duration-150 select-none cursor-pointer
           ${active
-            ? 'bg-accent/20 text-accent shadow-[0_0_0_1px_rgba(129,140,248,0.4)] tool-bounce tool-active-glow'
-            : 'text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.07)] hover:text-[rgba(255,255,255,0.9)]'
+            ? 'bg-indigo-100 text-indigo-600 shadow-[0_0_0_1px_rgba(129,140,248,0.4)] tool-bounce tool-active-glow'
+            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
           }
         `}
         title={`${label}${shortcut ? ` (${shortcut})` : ''}`}

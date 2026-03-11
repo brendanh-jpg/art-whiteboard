@@ -129,8 +129,8 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
   const panelWidth = activeTab === 'layers' ? 280 : PANEL_WIDTHS[panelSize];
 
   const panelStyle: React.CSSProperties = {
-    background: '#1E1E2E',
-    borderLeft: '1px solid rgba(255,255,255,0.06)',
+    background: '#FFFFFF',
+    borderLeft: '1px solid rgba(0,0,0,0.08)',
   };
 
   return (
@@ -142,8 +142,7 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
       `}
       style={{ width: `${panelWidth}px`, ...panelStyle }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(255,255,255,0.06)]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
         <div className="flex gap-1.5">
           {([
             { id: 'stickers' as const, label: '⭐ Stickers', active: 'bg-pink/20 text-pink border-pink/30' },
@@ -155,7 +154,7 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
               className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all border ${
                 activeTab === tab.id
                   ? tab.active
-                  : 'text-[rgba(255,255,255,0.25)] border-transparent'
+                  : 'text-slate-400 border-transparent'
               }`}
             >
               {tab.label}
@@ -165,15 +164,15 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
 
         <div className="flex items-center gap-1.5">
           {activeTab === 'stickers' && (
-            <div className="flex rounded-lg overflow-hidden border border-[rgba(255,255,255,0.1)]">
+            <div className="flex rounded-lg overflow-hidden border border-slate-200">
               {(['sm', 'md', 'lg'] as PanelSize[]).map((s) => (
                 <button
                   key={s}
                   onClick={() => setPanelSize(s)}
                   className={`px-2 py-0.5 text-[9px] font-bold cursor-pointer transition-colors ${
                     panelSize === s
-                      ? 'bg-accent/30 text-accent'
-                      : 'text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)]'
+                      ? 'bg-accent/20 text-accent'
+                      : 'text-slate-400 hover:text-slate-600'
                   }`}
                 >
                   {s.toUpperCase()}
@@ -183,20 +182,18 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
           )}
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.08)] cursor-pointer transition-all text-sm"
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 cursor-pointer transition-all text-sm"
           >
             ✕
           </button>
         </div>
       </div>
 
-      {/* Content */}
       <div className="overflow-y-auto panel-scroll" style={{ height: 'calc(100vh - 52px)' }}>
 
-        {/* STICKERS */}
         {activeTab === 'stickers' && (
           <div className="panel-animate">
-            <div className="flex flex-wrap gap-1.5 px-4 py-3 border-b border-[rgba(255,255,255,0.05)]">
+            <div className="flex flex-wrap gap-1.5 px-4 py-3 border-b border-slate-100">
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -204,7 +201,7 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
                   className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border cursor-pointer transition-all ${
                     activeCategory === cat
                       ? 'bg-accent/20 text-accent border-accent/40'
-                      : 'text-[rgba(255,255,255,0.45)] border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.2)] hover:text-[rgba(255,255,255,0.75)]'
+                      : 'text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-700'
                   }`}
                 >
                   {cat}
@@ -226,15 +223,14 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
           </div>
         )}
 
-        {/* LAYERS */}
         {activeTab === 'layers' && (
           <div className="p-4 space-y-3 panel-animate">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold text-[rgba(255,255,255,0.35)] uppercase tracking-wider">Layers</span>
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Layers</span>
               <button
                 onClick={addLayer}
                 disabled={layers.length >= 5}
-                className="px-3 py-1 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.12)] text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.06)] hover:text-white disabled:opacity-30 cursor-pointer transition-all"
+                className="px-3 py-1 text-xs font-semibold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 disabled:opacity-30 cursor-pointer transition-all"
               >
                 + Add Layer
               </button>
@@ -254,12 +250,11 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
               ))}
             </div>
             {layers.length >= 5 && (
-              <p className="text-[10px] text-[rgba(255,255,255,0.25)] text-center">Maximum 5 layers</p>
+              <p className="text-[10px] text-slate-400 text-center">Maximum 5 layers</p>
             )}
           </div>
         )}
 
-        {/* WALLPAPER */}
         {activeTab === 'wallpaper' && (
           <div className="p-4 space-y-4 panel-animate">
             <div className="px-3 py-2.5 rounded-xl" style={{ background: 'rgba(192,132,252,0.08)', border: '1px solid rgba(192,132,252,0.2)' }}>
@@ -268,8 +263,8 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-semibold text-[rgba(255,255,255,0.35)] uppercase tracking-wider">Roller Size</span>
-                <span className="text-[11px] font-semibold text-[rgba(255,255,255,0.6)] tabular-nums">{wallpaperBrushSize}px</span>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Roller Size</span>
+                <span className="text-[11px] font-semibold text-slate-600 tabular-nums">{wallpaperBrushSize}px</span>
               </div>
               <input
                 type="range" min={30} max={300} value={wallpaperBrushSize}
@@ -297,14 +292,14 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
                   style={{
                     border: selectedWallpaper === wp.id
                       ? '1px solid rgba(129,140,248,0.5)'
-                      : '1px solid rgba(255,255,255,0.08)',
+                      : '1px solid rgba(0,0,0,0.06)',
                     background: selectedWallpaper === wp.id
-                      ? 'rgba(129,140,248,0.1)'
-                      : 'rgba(255,255,255,0.03)',
+                      ? 'rgba(129,140,248,0.08)'
+                      : 'rgba(0,0,0,0.02)',
                   }}
                 >
                   <WallpaperPreview wallpaper={wp} isActive={selectedWallpaper === wp.id} />
-                  <span className="text-[9px] font-semibold text-[rgba(255,255,255,0.55)] leading-tight text-center">
+                  <span className="text-[9px] font-semibold text-slate-500 leading-tight text-center">
                     {wp.name}
                   </span>
                 </button>

@@ -50,15 +50,15 @@ export default function App() {
   const topBtnBase = `
     flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold
     transition-all duration-150 cursor-pointer select-none
-    border border-[rgba(255,255,255,0.12)]
-    bg-[rgba(30,30,46,0.75)] text-[rgba(255,255,255,0.75)]
-    hover:bg-[rgba(30,30,46,0.95)] hover:text-white hover:border-[rgba(255,255,255,0.2)]
-    backdrop-blur-xl
+    border border-slate-200
+    bg-white/80 text-slate-700
+    hover:bg-white hover:text-slate-900 hover:border-slate-300
+    backdrop-blur-xl shadow-sm
   `;
 
   const panelBtnActive = (active: boolean, activeColor: string) =>
     active
-      ? `flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer select-none border ${activeColor} backdrop-blur-xl`
+      ? `flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer select-none border ${activeColor} backdrop-blur-xl shadow-sm`
       : topBtnBase;
 
   return (
@@ -68,10 +68,8 @@ export default function App() {
       <div className="flex-1 relative">
         <Canvas />
 
-        {/* Top bar — floating glass pill */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-20 pointer-events-none">
 
-          {/* Left — Background selector */}
           <div className="relative pointer-events-auto">
             <button
               onClick={() => setBgMenuOpen(!bgMenuOpen)}
@@ -84,8 +82,8 @@ export default function App() {
               <div
                 className="absolute top-full mt-2 left-0 rounded-xl shadow-2xl p-2 space-y-0.5 min-w-[140px]"
                 style={{
-                  background: '#1E1E2E',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: '#FFFFFF',
+                  border: '1px solid rgba(0,0,0,0.08)',
                 }}
               >
                 {BACKGROUND_PRESETS.map((bg) => (
@@ -95,12 +93,12 @@ export default function App() {
                     className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
                       background === bg.color
                         ? 'bg-accent/20 text-accent'
-                        : 'text-[rgba(255,255,255,0.65)] hover:bg-[rgba(255,255,255,0.06)] hover:text-white'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`}
                   >
                     <div
                       className="w-4 h-4 rounded flex-shrink-0"
-                      style={{ backgroundColor: bg.color, border: '1px solid rgba(255,255,255,0.15)' }}
+                      style={{ backgroundColor: bg.color, border: '1px solid rgba(0,0,0,0.1)' }}
                     />
                     {bg.name}
                   </button>
@@ -109,7 +107,6 @@ export default function App() {
             )}
           </div>
 
-          {/* Center — Panel toggles */}
           <div className="flex items-center gap-1.5 pointer-events-auto">
             <button
               onClick={() => togglePanel('stickers')}
@@ -140,18 +137,16 @@ export default function App() {
             </button>
           </div>
 
-          {/* Right — Reactions + Actions + Presence */}
           <div className="flex items-center gap-2 pointer-events-auto">
-            {/* Reactions */}
             <div
-              className="flex items-center gap-1 px-1.5 py-1 rounded-xl"
-              style={{ background: 'rgba(30,30,46,0.75)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)' }}
+              className="flex items-center gap-1 px-1.5 py-1 rounded-xl shadow-sm"
+              style={{ background: 'rgba(255,255,255,0.80)', border: '1px solid rgba(0,0,0,0.08)', backdropFilter: 'blur(20px)' }}
             >
               {REACTION_EMOJIS.map((emoji) => (
                 <button
                   key={emoji}
                   onClick={() => sendReaction(emoji, Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2, window.innerHeight * 0.3)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 hover:scale-125 transition-all cursor-pointer text-sm"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 hover:scale-125 transition-all cursor-pointer text-sm"
                   title={`React with ${emoji}`}
                 >
                   {emoji}
@@ -159,9 +154,8 @@ export default function App() {
               ))}
             </div>
 
-            <div className="w-px h-5" style={{ background: 'rgba(255,255,255,0.1)' }} />
+            <div className="w-px h-5" style={{ background: 'rgba(0,0,0,0.1)' }} />
 
-            {/* Actions */}
             <button onClick={handleSaveToGallery} className={topBtnBase} title="Save to Gallery">
               <span>💾</span> Save
             </button>
@@ -172,7 +166,7 @@ export default function App() {
               <span>🖼</span> Gallery
             </button>
 
-            <div className="w-px h-5" style={{ background: 'rgba(255,255,255,0.1)' }} />
+            <div className="w-px h-5" style={{ background: 'rgba(0,0,0,0.1)' }} />
 
             <UserPresence />
           </div>

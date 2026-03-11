@@ -2,20 +2,20 @@
 
 @theme {
   --color-canvas-bg: #F7F6F3;
-  --color-surface: #1A1A2E;
-  --color-surface-2: #16213E;
-  --color-surface-3: #0F3460;
-  --color-panel-bg: #1E1E2E;
-  --color-panel-border: rgba(255,255,255,0.07);
-  --color-panel-hover: rgba(255,255,255,0.06);
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F8FAFC;
+  --color-surface-3: #F1F5F9;
+  --color-panel-bg: #FFFFFF;
+  --color-panel-border: rgba(0,0,0,0.08);
+  --color-panel-hover: rgba(0,0,0,0.04);
   --color-accent: #818CF8;
   --color-accent-2: #C084FC;
   --color-pink: #F472B6;
   --color-teal: #34D399;
   --color-orange: #FB923C;
-  --color-text-primary: rgba(255,255,255,0.92);
-  --color-text-secondary: rgba(255,255,255,0.5);
-  --color-text-muted: rgba(255,255,255,0.28);
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
   --color-cream: #F7F6F3;
   --color-electric-blue: #818CF8;
   --color-hot-pink: #F472B6;
@@ -44,8 +44,8 @@ html, body, #root {
 /* Scrollbar */
 .panel-scroll::-webkit-scrollbar { width: 4px; }
 .panel-scroll::-webkit-scrollbar-track { background: transparent; }
-.panel-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
-.panel-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+.panel-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
+.panel-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
 
 /* Tool active pulse */
 @keyframes activeGlow {
@@ -111,10 +111,10 @@ html, body, #root {
 
 /* Glassmorphism utility */
 .glass {
-  background: rgba(30, 30, 46, 0.85);
+  background: rgba(255, 255, 255, 0.80);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid rgba(0,0,0,0.08);
 }
 
 .glass-light {

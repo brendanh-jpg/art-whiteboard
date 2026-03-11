@@ -43,7 +43,7 @@ export default function Toolbar() {
   const { undo, redo, clearCanvas, historyIndex, history } = useCanvasStore();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [toolbarWidth, setToolbarWidth] = useState(PRESET_WIDTHS.md);
+  const [toolbarWidth, setToolbarWidth] = useState(PRESET_WIDTHS.lg);
 
   const isDragging = useRef(false);
   const dragStartX = useRef(0);
@@ -109,27 +109,26 @@ export default function Toolbar() {
         className="relative flex flex-col shrink-0 z-30 overflow-y-auto panel-scroll select-none transition-[width] duration-150"
         style={{
           width: `${toolbarWidth}px`,
-          background: '#1E1E2E',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
+          background: '#FFFFFF',
+          borderRight: '1px solid rgba(0,0,0,0.08)',
         }}
       >
-        {/* Logo */}
-        <div className="py-3 px-3 border-b border-[rgba(255,255,255,0.06)]">
+        <div className="py-3 px-3 border-b border-slate-200">
           <div className="flex items-center justify-between gap-2">
             {toolbarWidth >= 90 && (
-              <h1 className="text-sm font-bold text-white font-display leading-none tracking-wide">
+              <h1 className="text-sm font-bold text-slate-800 font-display leading-none tracking-wide">
                 {toolbarWidth >= 130 ? 'PlaySpace' : 'PS'}
               </h1>
             )}
-            <div className="flex rounded-lg overflow-hidden border border-[rgba(255,255,255,0.1)] ml-auto">
+            <div className="flex rounded-lg overflow-hidden border border-slate-200 ml-auto">
               {(['sm', 'md', 'lg'] as ToolbarSize[]).map((s) => (
                 <button
                   key={s}
                   onClick={() => setToolbarWidth(PRESET_WIDTHS[s])}
                   className={`px-1.5 py-0.5 text-[8px] font-bold cursor-pointer transition-colors ${
                     toolbarSize === s
-                      ? 'bg-accent/30 text-accent'
-                      : 'text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)]'
+                      ? 'bg-accent/20 text-accent'
+                      : 'text-slate-400 hover:text-slate-600'
                   }`}
                   title={`${s.toUpperCase()} toolbar`}
                 >
@@ -140,7 +139,6 @@ export default function Toolbar() {
           </div>
         </div>
 
-        {/* Tools */}
         <div className={`flex ${toolsInRow ? 'flex-row flex-wrap justify-center' : 'flex-col items-center'} gap-1 py-3 px-2`}>
           {TOOLS.map((tool, i) => (
             <div
@@ -162,30 +160,24 @@ export default function Toolbar() {
           ))}
         </div>
 
-        {/* Divider */}
-        <div className="mx-3 border-t border-[rgba(255,255,255,0.06)]" />
+        <div className="mx-3 border-t border-slate-200" />
 
-        {/* Brush settings */}
         <BrushSettings size={toolbarSize} toolbarWidth={toolbarWidth} />
 
-        {/* Divider */}
-        <div className="mx-3 border-t border-[rgba(255,255,255,0.06)]" />
+        <div className="mx-3 border-t border-slate-200" />
 
-        {/* Color palette */}
         <ColorPalette size={toolbarSize} toolbarWidth={toolbarWidth} />
 
-        {/* Divider */}
-        <div className="mx-3 border-t border-[rgba(255,255,255,0.06)]" />
+        <div className="mx-3 border-t border-slate-200" />
 
-        {/* Undo / Redo / Clear */}
         <div className={`flex ${toolbarWidth >= 155 ? 'flex-row justify-center' : 'flex-col items-center'} gap-1.5 py-3 px-2`}>
           <button
             onClick={undo}
             disabled={!canUndo}
             className={`${btnBase} ${undoSize} ${
               canUndo
-                ? 'text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.08)] hover:text-white'
-                : 'text-[rgba(255,255,255,0.2)]'
+                ? 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                : 'text-slate-300'
             }`}
             title="Undo (Ctrl+Z)"
           >
@@ -196,8 +188,8 @@ export default function Toolbar() {
             disabled={!canRedo}
             className={`${btnBase} ${undoSize} ${
               canRedo
-                ? 'text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.08)] hover:text-white'
-                : 'text-[rgba(255,255,255,0.2)]'
+                ? 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                : 'text-slate-300'
             }`}
             title="Redo (Ctrl+Y)"
           >
@@ -205,14 +197,13 @@ export default function Toolbar() {
           </button>
           <button
             onClick={() => setShowClearConfirm(true)}
-            className={`${btnBase} ${undoSize} text-red-400/60 hover:text-red-400 hover:bg-red-500/10`}
+            className={`${btnBase} ${undoSize} text-red-400/60 hover:text-red-500 hover:bg-red-50`}
             title="Clear Canvas"
           >
             🗑
           </button>
         </div>
 
-        {/* Drag handle */}
         <div
           onMouseDown={handleDragStart}
           className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize group z-40"
@@ -222,17 +213,16 @@ export default function Toolbar() {
         </div>
       </div>
 
-      {/* Clear modal */}
       <Modal isOpen={showClearConfirm} onClose={() => setShowClearConfirm(false)} title="Clear Canvas?">
         <div className="text-center">
           <div className="text-5xl mb-4">🧹</div>
-          <p className="text-[rgba(255,255,255,0.6)] text-sm mb-6">
+          <p className="text-slate-500 text-sm mb-6">
             This will erase everything. This action can't be undone.
           </p>
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => setShowClearConfirm(false)}
-              className="px-5 py-2 rounded-xl text-sm font-semibold text-[rgba(255,255,255,0.7)] border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.06)] cursor-pointer transition-all"
+              className="px-5 py-2 rounded-xl text-sm font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 cursor-pointer transition-all"
             >
               Cancel
             </button>

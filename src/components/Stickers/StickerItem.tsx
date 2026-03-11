@@ -23,16 +23,16 @@ export default function StickerItemUI({ emoji, label, size = 'md', onSelect }: S
       onClick={() => onSelect(emoji)}
       className={`${cls.button} flex flex-col items-center justify-center rounded-xl cursor-pointer select-none transition-all duration-150 hover:scale-110`}
       style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.07)',
+        background: 'rgba(0,0,0,0.02)',
+        border: '1px solid rgba(0,0,0,0.06)',
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.09)';
-        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)';
+        (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.05)';
+        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,0,0,0.12)';
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
-        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)';
+        (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.02)';
+        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,0,0,0.06)';
       }}
       title={label}
       draggable
@@ -41,7 +41,7 @@ export default function StickerItemUI({ emoji, label, size = 'md', onSelect }: S
       <span>{emoji}</span>
       {size !== 'sm' && (
         <span className={`${cls.text} font-semibold leading-tight mt-0.5 truncate w-full text-center`}
-          style={{ color: 'rgba(255,255,255,0.35)' }}
+          style={{ color: '#64748b' }}
         >
           {label}
         </span>
