@@ -2,105 +2,50 @@ import React from 'react';
 import { useToolStore } from '../../stores/toolStore';
 import type { ToolbarSize } from './ToolButton';
 
-const LABEL_SIZE: Record<ToolbarSize, string> = {
-  sm: 'text-[8px]',
-  md: 'text-[10px]',
-  lg: 'text-xs',
-};
-
 interface BrushSettingsProps {
   size?: ToolbarSize;
   toolbarWidth?: number;
 }
 
-export default function BrushSettings({ size = 'md', toolbarWidth = 140 }: BrushSettingsProps) {
-  const { brushSize, setBrushSize, opacity, setOpacity, activeTool, sprayRadius, setSprayRadius, sprayDensity, setSprayDensity, fontSize, setFontSize } = useToolStore();
+function SliderRow({ label, value, display, min, max, onChange, trackClass }: {
+  label: string; value: number; display: string; min: number; max: number;
+  onChange: (v: number) => void; trackClass?: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-center">
+        <span className="text-[10px] font-semibold text-[rgba(255,255,255,0.4)] uppercase tracking-wider">{label}</span>
+        <span className="text-[11px] font-semibold text-[rgba(255,255,255,0.7)] tabular-nums">{display}</span>
+      </div>
+      <input
+        type="range" min={min} max={max} value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className={`w-full ${trackClass ?? 'track-accent'}`}
+      />
+    </div>
+  );
+}
 
-  const labelCls = `${LABEL_SIZE[size]} font-bold text-gray-500 uppercase tracking-wider font-display`;
+export default function BrushSettings({ size = 'md' }: BrushSettingsProps) {
+  const { brushSize, setBrushSize, opacity, setOpacity, activeTool,
+    sprayRadius, setSprayRadius, sprayDensity, setSprayDensity, fontSize, setFontSize } = useToolStore();
 
   return (
-    <div className="px-3 py-2 space-y-2">
-      {/* Brush size */}
+    <div className="px-3 py-3 space-y-3">
       {activeTool !== 'text' && activeTool !== 'eyedropper' && activeTool !== 'paintBucket' && (
-        <div>
-          <label className={labelCls}>
-            Size: {brushSize}
-          </label>
-          <input
-            type="range"
-            min={1}
-            max={40}
-            value={brushSize}
-            onChange={(e) => setBrushSize(Number(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-electric-blue"
-          />
-        </div>
+        <SliderRow label="Size" value={brushSize} display={`${brushSize}px`} min={1} max={40} onChange={setBrushSize} trackClass="track-accent" />
       )}
-
-      {/* Opacity */}
       {activeTool !== 'eyedropper' && activeTool !== 'rainbowBrush' && (
-        <div>
-          <label className={labelCls}>
-            Opacity: {Math.round(opacity * 100)}%
-          </label>
-          <input
-            type="range"
-            min={10}
-            max={100}
-            value={opacity * 100}
-            onChange={(e) => setOpacity(Number(e.target.value) / 100)}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-hot-pink"
-          />
-        </div>
+        <SliderRow label="Opacity" value={Math.round(opacity * 100)} display={`${Math.round(opacity * 100)}%`} min={10} max={100} onChange={(v) => setOpacity(v / 100)} trackClass="track-pink" />
       )}
-
-      {/* Spray paint settings */}
       {activeTool === 'sprayPaint' && (
         <>
-          <div>
-            <label className={labelCls}>
-              Radius: {sprayRadius}
-            </label>
-            <input
-              type="range"
-              min={5}
-              max={60}
-              value={sprayRadius}
-              onChange={(e) => setSprayRadius(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange"
-            />
-          </div>
-          <div>
-            <label className={labelCls}>
-              Density: {sprayDensity}
-            </label>
-            <input
-              type="range"
-              min={5}
-              max={80}
-              value={sprayDensity}
-              onChange={(e) => setSprayDensity(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange"
-            />
-          </div>
+          <SliderRow label="Radius" value={sprayRadius} display={`${sprayRadius}`} min={5} max={60} onChange={setSprayRadius} trackClass="track-orange" />
+          <SliderRow label="Density" value={sprayDensity} display={`${sprayDensity}`} min={5} max={80} onChange={setSprayDensity} trackClass="track-orange" />
         </>
       )}
-
-      {/* Font size for text tool */}
       {activeTool === 'text' && (
-        <div>
-          <label className={labelCls}>
-            Font Size: {fontSize}
-          </label>
-          <input
-            type="range"
-            min={12}
-            max={72}
-            value={fontSize}
-            onChange={(e) => setFontSize(Number(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-lime"
-          />
-        </div>
+        <SliderRow label="Font Size" value={fontSize} display={`${fontSize}px`} min={12} max={72} onChange={setFontSize} trackClass="track-teal" />
       )}
     </div>
   );

@@ -1,18 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #FFF8F0;
-  --color-electric-blue: #3B82F6;
-  --color-hot-pink: #EC4899;
-  --color-lime: #84CC16;
-  --color-orange: #F97316;
-  --color-dark-bg: #1E1B4B;
-  --color-dark-surface: #2D2A5E;
+  --color-canvas-bg: #F7F6F3;
+  --color-surface: #1A1A2E;
+  --color-surface-2: #16213E;
+  --color-surface-3: #0F3460;
+  --color-panel-bg: #1E1E2E;
+  --color-panel-border: rgba(255,255,255,0.07);
+  --color-panel-hover: rgba(255,255,255,0.06);
+  --color-accent: #818CF8;
+  --color-accent-2: #C084FC;
+  --color-pink: #F472B6;
+  --color-teal: #34D399;
+  --color-orange: #FB923C;
+  --color-text-primary: rgba(255,255,255,0.92);
+  --color-text-secondary: rgba(255,255,255,0.5);
+  --color-text-muted: rgba(255,255,255,0.28);
+  --color-cream: #F7F6F3;
+  --color-electric-blue: #818CF8;
+  --color-hot-pink: #F472B6;
+  --color-lime: #34D399;
   --font-display: 'Fredoka', sans-serif;
-  --font-body: 'Nunito', sans-serif;
-  --font-fun: 'Bubblegum Sans', cursive;
-  --font-marker: 'Permanent Marker', cursive;
-  --font-comic: 'Comic Neue', cursive;
+  --font-body: 'Inter', sans-serif;
+  --font-fun: 'Fredoka', sans-serif;
+  --font-marker: 'Fredoka', sans-serif;
+  --font-comic: 'Inter', sans-serif;
 }
 
 * {
@@ -26,81 +38,115 @@ html, body, #root {
   height: 100%;
   overflow: hidden;
   font-family: var(--font-body);
-  background-color: var(--color-cream);
+  background-color: var(--color-canvas-bg);
 }
 
-/* Custom scrollbar for panels */
-.panel-scroll::-webkit-scrollbar {
-  width: 6px;
+/* Scrollbar */
+.panel-scroll::-webkit-scrollbar { width: 4px; }
+.panel-scroll::-webkit-scrollbar-track { background: transparent; }
+.panel-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+.panel-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* Tool active pulse */
+@keyframes activeGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(129,140,248,0); }
+  50% { box-shadow: 0 0 0 3px rgba(129,140,248,0.25); }
 }
-.panel-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.panel-scroll::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
+.tool-active-glow {
+  animation: activeGlow 2s ease-in-out infinite;
 }
 
-/* Tool button wiggle animation */
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-3deg); }
-  75% { transform: rotate(3deg); }
+/* Subtle entrance */
+@keyframes slideInLeft {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
-.tool-wiggle:hover {
-  animation: wiggle 0.3s ease-in-out;
-}
-
-/* Bouncy select animation */
-@keyframes bounceSelect {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
-}
-.tool-bounce {
-  animation: bounceSelect 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+.toolbar-enter {
+  animation: slideInLeft 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 }
 
-/* Sticker slap animation */
+/* Sticker slap */
 @keyframes stickerSlap {
   0% { transform: scale(1.3) rotate(-5deg); opacity: 0.8; }
   50% { transform: scale(0.95) rotate(2deg); opacity: 1; }
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
-.sticker-slap {
-  animation: stickerSlap 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-}
+.sticker-slap { animation: stickerSlap 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
 
-/* Poof animation for canvas clear */
+/* Bounce select */
+@keyframes bounceSelect {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.tool-bounce { animation: bounceSelect 0.25s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+
+/* Poof clear */
 @keyframes poof {
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.5); opacity: 0.5; }
   100% { transform: scale(2); opacity: 0; }
 }
-.poof {
-  animation: poof 0.5s ease-out forwards;
-}
+.poof { animation: poof 0.5s ease-out forwards; }
 
-/* Staggered toolbar entrance */
-@keyframes slideInLeft {
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-.toolbar-enter {
-  animation: slideInLeft 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
-}
-
-/* Paint drip on color select */
-@keyframes paintDrip {
-  0% { clip-path: inset(0 0 100% 0); }
-  100% { clip-path: inset(0 0 0 0); }
-}
-
-/* Floating reaction animation */
+/* Floating reaction */
 @keyframes floatUp {
   0% { transform: translateY(0) scale(1); opacity: 1; }
   100% { transform: translateY(-120px) scale(0.5); opacity: 0; }
 }
-.reaction-float {
-  animation: floatUp 2s ease-out forwards;
+.reaction-float { animation: floatUp 2s ease-out forwards; }
+
+/* Tooltip fade */
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateX(6px); }
+  to { opacity: 1; transform: translateX(0); }
 }
+
+/* Panel slide */
+@keyframes panelSlideIn {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.panel-animate { animation: panelSlideIn 0.2s ease-out; }
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(30, 30, 46, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.glass-light {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Range input custom styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+input[type="range"].track-accent { background: linear-gradient(to right, #818CF8, #C084FC); }
+input[type="range"].track-pink { background: linear-gradient(to right, #F472B6, #FB7185); }
+input[type="range"].track-teal { background: linear-gradient(to right, #34D399, #06B6D4); }
+input[type="range"].track-orange { background: linear-gradient(to right, #FB923C, #F59E0B); }

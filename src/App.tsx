@@ -29,7 +29,7 @@ export default function App() {
     if (konvaStage) {
       const uri = konvaStage.toDataURL({ pixelRatio: 2 });
       const link = document.createElement('a');
-      link.download = `playspace-canvas-${Date.now()}.png`;
+      link.download = `playspace-${Date.now()}.png`;
       link.href = uri;
       document.body.appendChild(link);
       link.click();
@@ -47,37 +47,61 @@ export default function App() {
 
   const REACTION_EMOJIS = ['👏', '🎨', '✨', '😂'];
 
+  const topBtnBase = `
+    flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold
+    transition-all duration-150 cursor-pointer select-none
+    border border-[rgba(255,255,255,0.12)]
+    bg-[rgba(30,30,46,0.75)] text-[rgba(255,255,255,0.75)]
+    hover:bg-[rgba(30,30,46,0.95)] hover:text-white hover:border-[rgba(255,255,255,0.2)]
+    backdrop-blur-xl
+  `;
+
+  const panelBtnActive = (active: boolean, activeColor: string) =>
+    active
+      ? `flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer select-none border ${activeColor} backdrop-blur-xl`
+      : topBtnBase;
+
   return (
-    <div className="w-full h-full flex overflow-hidden bg-cream">
-      {/* Left toolbar */}
+    <div className="w-full h-full flex overflow-hidden" style={{ background: '#F7F6F3' }}>
       <Toolbar />
 
-      {/* Main canvas area */}
       <div className="flex-1 relative">
         <Canvas />
 
-        {/* Top bar */}
-        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 z-20">
-          {/* Background selector */}
-          <div className="relative">
+        {/* Top bar — floating glass pill */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-20 pointer-events-none">
+
+          {/* Left — Background selector */}
+          <div className="relative pointer-events-auto">
             <button
               onClick={() => setBgMenuOpen(!bgMenuOpen)}
-              className="px-3 py-1.5 rounded-xl border-3 border-gray-300 bg-white/90 backdrop-blur-sm text-xs font-bold font-display text-gray-700 hover:bg-white cursor-pointer shadow"
-              style={{ borderWidth: '3px' }}
+              className={topBtnBase}
             >
-              🎨 Background
+              <span>🎨</span>
+              <span>Background</span>
             </button>
             {bgMenuOpen && (
-              <div className="absolute top-full mt-1 left-0 bg-white rounded-xl border-3 border-gray-300 shadow-xl p-2 space-y-1" style={{ borderWidth: '3px' }}>
+              <div
+                className="absolute top-full mt-2 left-0 rounded-xl shadow-2xl p-2 space-y-0.5 min-w-[140px]"
+                style={{
+                  background: '#1E1E2E',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
+              >
                 {BACKGROUND_PRESETS.map((bg) => (
                   <button
                     key={bg.id}
                     onClick={() => { setBackground(bg.color); setBgMenuOpen(false); }}
-                    className={`flex items-center gap-2 w-full px-3 py-1.5 rounded-lg text-xs font-display font-bold cursor-pointer transition-colors ${
-                      background === bg.color ? 'bg-electric-blue/10 text-electric-blue' : 'text-gray-700 hover:bg-gray-50'
+                    className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                      background === bg.color
+                        ? 'bg-accent/20 text-accent'
+                        : 'text-[rgba(255,255,255,0.65)] hover:bg-[rgba(255,255,255,0.06)] hover:text-white'
                     }`}
                   >
-                    <div className="w-5 h-5 rounded border-2 border-gray-300" style={{ backgroundColor: bg.color }} />
+                    <div
+                      className="w-4 h-4 rounded flex-shrink-0"
+                      style={{ backgroundColor: bg.color, border: '1px solid rgba(255,255,255,0.15)' }}
+                    />
                     {bg.name}
                   </button>
                 ))}
@@ -85,51 +109,49 @@ export default function App() {
             )}
           </div>
 
-          {/* Center panel toggle buttons */}
-          <div className="flex items-center gap-2">
+          {/* Center — Panel toggles */}
+          <div className="flex items-center gap-1.5 pointer-events-auto">
             <button
               onClick={() => togglePanel('stickers')}
-              className={`px-3 py-1.5 rounded-xl border-3 text-xs font-bold font-display cursor-pointer shadow transition-colors ${
-                activePanel === 'stickers'
-                  ? 'bg-hot-pink text-white border-pink-600'
-                  : 'bg-white/90 backdrop-blur-sm text-gray-700 border-gray-300 hover:bg-white'
-              }`}
-              style={{ borderWidth: '3px' }}
+              className={panelBtnActive(
+                activePanel === 'stickers',
+                'border-pink/40 bg-pink/20 text-pink'
+              )}
             >
-              ⭐ Stickers
+              <span>⭐</span> Stickers
             </button>
             <button
               onClick={() => togglePanel('layers')}
-              className={`px-3 py-1.5 rounded-xl border-3 text-xs font-bold font-display cursor-pointer shadow transition-colors ${
-                activePanel === 'layers'
-                  ? 'bg-lime text-white border-green-600'
-                  : 'bg-white/90 backdrop-blur-sm text-gray-700 border-gray-300 hover:bg-white'
-              }`}
-              style={{ borderWidth: '3px' }}
+              className={panelBtnActive(
+                activePanel === 'layers',
+                'border-teal/40 bg-teal/20 text-teal'
+              )}
             >
-              📑 Layers
+              <span>📑</span> Layers
             </button>
             <button
               onClick={() => togglePanel('wallpaper')}
-              className={`px-3 py-1.5 rounded-xl border-3 text-xs font-bold font-display cursor-pointer shadow transition-colors ${
-                activePanel === 'wallpaper'
-                  ? 'bg-purple-500 text-white border-purple-700'
-                  : 'bg-white/90 backdrop-blur-sm text-gray-700 border-gray-300 hover:bg-white'
-              }`}
-              style={{ borderWidth: '3px' }}
+              className={panelBtnActive(
+                activePanel === 'wallpaper',
+                'border-accent-2/40 bg-accent-2/20 text-accent-2'
+              )}
             >
-              🧱 Wallpaper
+              <span>🧱</span> Wallpaper
             </button>
           </div>
 
-          {/* Right side - users & actions */}
-          <div className="flex items-center gap-3">
-            <div className="flex gap-1">
+          {/* Right — Reactions + Actions + Presence */}
+          <div className="flex items-center gap-2 pointer-events-auto">
+            {/* Reactions */}
+            <div
+              className="flex items-center gap-1 px-1.5 py-1 rounded-xl"
+              style={{ background: 'rgba(30,30,46,0.75)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)' }}
+            >
               {REACTION_EMOJIS.map((emoji) => (
                 <button
                   key={emoji}
                   onClick={() => sendReaction(emoji, Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2, window.innerHeight * 0.3)}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg border-2 border-gray-200 bg-white/90 hover:scale-125 transition-transform cursor-pointer text-sm"
+                  className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 hover:scale-125 transition-all cursor-pointer text-sm"
                   title={`React with ${emoji}`}
                 >
                   {emoji}
@@ -137,45 +159,29 @@ export default function App() {
               ))}
             </div>
 
-            <div className="w-px h-6 bg-gray-300" />
+            <div className="w-px h-5" style={{ background: 'rgba(255,255,255,0.1)' }} />
 
-            <button
-              onClick={handleSaveToGallery}
-              className="px-3 py-1.5 rounded-xl border-3 border-gray-300 bg-white/90 backdrop-blur-sm text-xs font-bold font-display text-gray-700 hover:bg-white cursor-pointer shadow"
-              style={{ borderWidth: '3px' }}
-              title="Save to Gallery"
-            >
-              💾 Save
+            {/* Actions */}
+            <button onClick={handleSaveToGallery} className={topBtnBase} title="Save to Gallery">
+              <span>💾</span> Save
             </button>
-            <button
-              onClick={handleExportPNG}
-              className="px-3 py-1.5 rounded-xl border-3 border-gray-300 bg-white/90 backdrop-blur-sm text-xs font-bold font-display text-gray-700 hover:bg-white cursor-pointer shadow"
-              style={{ borderWidth: '3px' }}
-              title="Export as PNG"
-            >
-              📥 Export
+            <button onClick={handleExportPNG} className={topBtnBase} title="Export as PNG">
+              <span>📥</span> Export
             </button>
-            <button
-              onClick={() => setGalleryOpen(true)}
-              className="px-3 py-1.5 rounded-xl border-3 border-gray-300 bg-white/90 backdrop-blur-sm text-xs font-bold font-display text-gray-700 hover:bg-white cursor-pointer shadow"
-              style={{ borderWidth: '3px' }}
-              title="View Gallery"
-            >
-              🖼 Gallery
+            <button onClick={() => setGalleryOpen(true)} className={topBtnBase} title="View Gallery">
+              <span>🖼</span> Gallery
             </button>
 
-            <div className="w-px h-6 bg-gray-300" />
+            <div className="w-px h-5" style={{ background: 'rgba(255,255,255,0.1)' }} />
 
             <UserPresence />
           </div>
         </div>
       </div>
 
-      {/* Unified right panel */}
       <RightPanel activeTab={activePanel} onClose={() => setActivePanel(null)} />
       <GalleryView isOpen={galleryOpen} onClose={() => setGalleryOpen(false)} />
 
-      {/* Overlays */}
       <ReactionOverlay />
       <PassTheCanvas />
     </div>

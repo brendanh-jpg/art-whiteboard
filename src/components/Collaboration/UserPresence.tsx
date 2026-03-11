@@ -7,20 +7,25 @@ export default function UserPresence() {
 
   return (
     <div className="flex items-center gap-1">
-      {/* Local user */}
       <div
-        className="w-8 h-8 rounded-full bg-electric-blue flex items-center justify-center text-white text-xs font-bold font-display border-2 border-white shadow"
+        className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-bold"
+        style={{
+          background: 'linear-gradient(135deg, #818CF8, #C084FC)',
+          boxShadow: '0 0 0 1.5px rgba(129,140,248,0.4)',
+        }}
         title="You"
       >
         You
       </div>
 
-      {/* Remote users */}
       {users.filter((u) => u.id !== localUserId).map((user) => (
         <div
           key={user.id}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold font-display border-2 border-white shadow"
-          style={{ backgroundColor: user.color }}
+          className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-bold"
+          style={{
+            backgroundColor: user.color,
+            boxShadow: `0 0 0 1.5px ${user.color}60`,
+          }}
           title={user.name}
         >
           {user.name.slice(0, 2).toUpperCase()}

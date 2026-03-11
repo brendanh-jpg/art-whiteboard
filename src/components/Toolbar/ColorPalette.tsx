@@ -10,7 +10,6 @@ interface ColorPaletteProps {
 
 export default function ColorPalette({ size = 'md', toolbarWidth = 140 }: ColorPaletteProps) {
   const { color, setColor, addRecentColor, recentColors } = useToolStore();
-  const [showMoods, setShowMoods] = useState(false);
   const [activeMood, setActiveMood] = useState<string | null>(null);
 
   const handleColorSelect = (c: string) => {
@@ -20,47 +19,60 @@ export default function ColorPalette({ size = 'md', toolbarWidth = 140 }: ColorP
 
   const displayColors = activeMood ? MOOD_PALETTES[activeMood].colors : CRAYOLA_PALETTE;
 
-  // Dynamically compute swatch size and grid columns from toolbar width
-  const padding = 16; // px-2 on each side
+  const padding = 24;
   const gap = 4;
   const availableWidth = toolbarWidth - padding;
-  const swatchPx = size === 'sm' ? 20 : size === 'lg' ? 32 : 24;
+  const swatchPx = size === 'sm' ? 18 : size === 'lg' ? 28 : 22;
   const cols = Math.max(3, Math.floor((availableWidth + gap) / (swatchPx + gap)));
-  const previewPx = size === 'sm' ? 24 : size === 'lg' ? 40 : 32;
 
   return (
-    <div className="px-2 py-2 space-y-2">
-      {/* Current color preview */}
+    <div className="px-3 py-3 space-y-3">
+      {/* Current color + picker */}
       <div className="flex items-center gap-2">
         <div
-          className="rounded-lg border-3 border-gray-800 shadow-inner"
-          style={{ backgroundColor: color, borderWidth: '3px', width: previewPx, height: previewPx }}
+          className="rounded-lg shadow-inner flex-shrink-0"
+          style={{
+            backgroundColor: color,
+            width: 34, height: 34,
+            border: '2px solid rgba(255,255,255,0.15)',
+            boxShadow: `0 0 0 1px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)`,
+          }}
         />
-        <input
-          type="color"
-          value={color}
-          onChange={(e) => handleColorSelect(e.target.value)}
-          className="cursor-pointer rounded border-0"
-          style={{ width: previewPx, height: previewPx }}
-          title="Custom color"
-        />
+        <label className="flex-1 relative cursor-pointer group">
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => handleColorSelect(e.target.value)}
+            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+          />
+          <div className="h-[34px] rounded-lg flex items-center justify-center gap-1.5 text-[11px] font-semibold text-[rgba(255,255,255,0.55)] group-hover:text-[rgba(255,255,255,0.8)] transition-colors border border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.15)] bg-[rgba(255,255,255,0.04)]">
+            <span>✏️</span>
+            <span className="font-mono text-[10px]">{color.toUpperCase()}</span>
+          </div>
+        </label>
       </div>
 
-      {/* Mood palette toggle */}
+      {/* Mood palette tabs */}
       <div className="flex gap-1 flex-wrap">
         <button
-          onClick={() => { setShowMoods(!showMoods); setActiveMood(null); }}
-          className={`text-[9px] font-bold px-2 py-0.5 rounded-full border-2 cursor-pointer transition-colors font-display
-            ${showMoods ? 'bg-hot-pink text-white border-pink-600' : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'}`}
+          onClick={() => setActiveMood(null)}
+          className={`text-[9px] font-semibold px-2 py-0.5 rounded-full cursor-pointer transition-all ${
+            !activeMood
+              ? 'bg-accent/30 text-accent border border-accent/40'
+              : 'text-[rgba(255,255,255,0.4)] border border-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.2)]'
+          }`}
         >
-          Moods
+          Classic
         </button>
-        {showMoods && Object.entries(MOOD_PALETTES).map(([key, palette]) => (
+        {Object.entries(MOOD_PALETTES).map(([key, palette]) => (
           <button
             key={key}
             onClick={() => setActiveMood(activeMood === key ? null : key)}
-            className={`text-[9px] font-bold px-2 py-0.5 rounded-full border-2 cursor-pointer transition-colors font-display
-              ${activeMood === key ? 'bg-electric-blue text-white border-blue-600' : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'}`}
+            className={`text-[9px] font-semibold px-2 py-0.5 rounded-full cursor-pointer transition-all ${
+              activeMood === key
+                ? 'bg-pink/30 text-pink border border-pink/40'
+                : 'text-[rgba(255,255,255,0.4)] border border-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.2)]'
+            }`}
           >
             {palette.name}
           </button>
@@ -73,14 +85,14 @@ export default function ColorPalette({ size = 'md', toolbarWidth = 140 }: ColorP
           <button
             key={c}
             onClick={() => handleColorSelect(c)}
-            className={`rounded-md cursor-pointer transition-transform hover:scale-110 ${
-              color === c ? 'ring-2 ring-gray-800 ring-offset-1 scale-110' : ''
+            className={`rounded-md cursor-pointer transition-all duration-100 hover:scale-110 hover:z-10 relative ${
+              color === c ? 'scale-110 ring-2 ring-white ring-offset-1 ring-offset-[#1E1E2E] z-10' : ''
             }`}
             style={{
               backgroundColor: c,
-              border: c === '#FFFFFF' ? '2px solid #d1d5db' : '2px solid transparent',
               width: '100%',
               aspectRatio: '1',
+              border: c === '#FFFFFF' ? '1px solid rgba(255,255,255,0.2)' : 'none',
             }}
             title={c}
           />
@@ -89,15 +101,16 @@ export default function ColorPalette({ size = 'md', toolbarWidth = 140 }: ColorP
 
       {/* Recent colors */}
       {recentColors.length > 0 && (
-        <div>
-          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider font-display mb-1">Recent</p>
+        <div className="space-y-1.5">
+          <p className="text-[9px] font-semibold text-[rgba(255,255,255,0.28)] uppercase tracking-wider">Recent</p>
           <div className="flex gap-1 flex-wrap">
             {recentColors.map((c, i) => (
               <button
                 key={`${c}-${i}`}
                 onClick={() => handleColorSelect(c)}
-                className="w-5 h-5 rounded cursor-pointer transition-transform hover:scale-110"
-                style={{ backgroundColor: c, border: '2px solid #d1d5db' }}
+                className={`rounded-md cursor-pointer transition-all hover:scale-110 ${color === c ? 'ring-1 ring-white ring-offset-1 ring-offset-[#1E1E2E]' : ''}`}
+                style={{ backgroundColor: c, width: 18, height: 18, border: '1px solid rgba(255,255,255,0.1)' }}
+                title={c}
               />
             ))}
           </div>

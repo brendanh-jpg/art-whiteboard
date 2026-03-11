@@ -9,33 +9,32 @@ import ColorPalette from './ColorPalette';
 import Modal from '../common/Modal';
 
 const TOOLS: Array<{ id: ToolType; icon: string; label: string; shortcut: string }> = [
-  { id: 'pencil', icon: '\u270F\uFE0F', label: 'Pencil', shortcut: 'P' },
-  { id: 'eraser', icon: '\uD83E\uDDF9', label: 'Eraser', shortcut: 'E' },
-  { id: 'line', icon: '\u2796', label: 'Line', shortcut: 'L' },
-  { id: 'sprayPaint', icon: '\uD83C\uDFA8', label: 'Spray Paint', shortcut: 'S' },
-  { id: 'paintBucket', icon: '\uD83E\uDEE3', label: 'Paint Bucket', shortcut: 'G' },
-  { id: 'shapeStamp', icon: '\u2B50', label: 'Shape Stamp', shortcut: 'U' },
-  { id: 'text', icon: '\uD83C\uDD70\uFE0F', label: 'Text', shortcut: 'T' },
-  { id: 'highlighter', icon: '\uD83D\uDD8D\uFE0F', label: 'Highlighter', shortcut: 'H' },
-  { id: 'glitterPen', icon: '\u2728', label: 'Glitter Pen', shortcut: 'I' },
-  { id: 'rainbowBrush', icon: '\uD83C\uDF08', label: 'Rainbow Brush', shortcut: 'R' },
-  { id: 'eyedropper', icon: '\uD83D\uDCA7', label: 'Eyedropper', shortcut: 'K' },
-  { id: 'pan', icon: '\u270B', label: 'Pan / Move', shortcut: 'V' },
+  { id: 'pencil', icon: '✏️', label: 'Pencil', shortcut: 'P' },
+  { id: 'eraser', icon: '🧹', label: 'Eraser', shortcut: 'E' },
+  { id: 'line', icon: '➖', label: 'Line', shortcut: 'L' },
+  { id: 'sprayPaint', icon: '🎨', label: 'Spray Paint', shortcut: 'S' },
+  { id: 'paintBucket', icon: '🫗', label: 'Paint Bucket', shortcut: 'G' },
+  { id: 'shapeStamp', icon: '⭐', label: 'Shape Stamp', shortcut: 'U' },
+  { id: 'text', icon: '🅰️', label: 'Text', shortcut: 'T' },
+  { id: 'highlighter', icon: '🖍️', label: 'Highlighter', shortcut: 'H' },
+  { id: 'glitterPen', icon: '✨', label: 'Glitter Pen', shortcut: 'I' },
+  { id: 'rainbowBrush', icon: '🌈', label: 'Rainbow Brush', shortcut: 'R' },
+  { id: 'eyedropper', icon: '💧', label: 'Eyedropper', shortcut: 'K' },
+  { id: 'pan', icon: '✋', label: 'Pan / Move', shortcut: 'V' },
 ];
 
-const MIN_WIDTH = 64;
-const MAX_WIDTH = 300;
+const MIN_WIDTH = 58;
+const MAX_WIDTH = 280;
 
 const PRESET_WIDTHS: Record<ToolbarSize, number> = {
-  sm: 72,
-  md: 140,
+  sm: 64,
+  md: 136,
   lg: 220,
 };
 
-/** Derive a ToolbarSize from the current pixel width for child components. */
 function sizeFromWidth(w: number): ToolbarSize {
   if (w < 100) return 'sm';
-  if (w < 180) return 'md';
+  if (w < 175) return 'md';
   return 'lg';
 }
 
@@ -46,18 +45,16 @@ export default function Toolbar() {
   const [mounted, setMounted] = useState(false);
   const [toolbarWidth, setToolbarWidth] = useState(PRESET_WIDTHS.md);
 
-  // Drag state
   const isDragging = useRef(false);
   const dragStartX = useRef(0);
   const dragStartWidth = useRef(0);
 
   const toolbarSize = sizeFromWidth(toolbarWidth);
+  const showLabels = toolbarWidth >= 150;
+  const toolsInRow = toolbarWidth >= 168;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -69,7 +66,6 @@ export default function Toolbar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setTool]);
 
-  // Drag-to-resize handlers
   const handleDragStart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     isDragging.current = true;
@@ -101,34 +97,41 @@ export default function Toolbar() {
     };
   }, []);
 
-  const showLabels = toolbarWidth >= 150;
-  const toolsInRow = toolbarWidth >= 170;
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
 
-  const undoBtnSize = toolbarSize === 'sm' ? 'w-8 h-7 text-xs' : toolbarSize === 'lg' ? 'w-14 h-10 text-lg' : 'w-11 h-9 text-sm';
+  const btnBase = 'flex items-center justify-center rounded-lg transition-all duration-150 cursor-pointer font-semibold text-sm';
+  const undoSize = toolbarSize === 'sm' ? 'w-7 h-7 text-sm' : 'w-9 h-9 text-base';
 
   return (
     <>
       <div
-        className="relative flex flex-col shrink-0 bg-cream/95 backdrop-blur-sm border-r-4 border-gray-300 shadow-xl z-30 overflow-y-auto panel-scroll select-none transition-[width] duration-150"
-        style={{ width: `${toolbarWidth}px` }}
+        className="relative flex flex-col shrink-0 z-30 overflow-y-auto panel-scroll select-none transition-[width] duration-150"
+        style={{
+          width: `${toolbarWidth}px`,
+          background: '#1E1E2E',
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+        }}
       >
-        {/* Logo + size presets */}
-        <div className="py-2 px-2 text-center border-b-3 border-gray-200" style={{ borderBottomWidth: '3px' }}>
-          <h1 className={`${toolbarSize === 'sm' ? 'text-xs' : toolbarSize === 'lg' ? 'text-lg' : 'text-sm'} font-bold text-electric-blue font-display leading-tight`}>
-            {toolbarWidth >= 120 ? 'PlaySpace' : <>Play<br/>Space</>}
-          </h1>
-          {/* Size presets */}
-          <div className="flex justify-center mt-1.5">
-            <div className="flex rounded-md border-2 border-gray-300 overflow-hidden">
+        {/* Logo */}
+        <div className="py-3 px-3 border-b border-[rgba(255,255,255,0.06)]">
+          <div className="flex items-center justify-between gap-2">
+            {toolbarWidth >= 90 && (
+              <h1 className="text-sm font-bold text-white font-display leading-none tracking-wide">
+                {toolbarWidth >= 130 ? 'PlaySpace' : 'PS'}
+              </h1>
+            )}
+            <div className="flex rounded-lg overflow-hidden border border-[rgba(255,255,255,0.1)] ml-auto">
               {(['sm', 'md', 'lg'] as ToolbarSize[]).map((s) => (
                 <button
                   key={s}
                   onClick={() => setToolbarWidth(PRESET_WIDTHS[s])}
-                  className={`px-1.5 py-0.5 text-[8px] font-bold font-display cursor-pointer transition-colors ${
+                  className={`px-1.5 py-0.5 text-[8px] font-bold cursor-pointer transition-colors ${
                     toolbarSize === s
-                      ? 'bg-electric-blue text-white'
-                      : 'bg-white text-gray-400 hover:bg-gray-50'
+                      ? 'bg-accent/30 text-accent'
+                      : 'text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)]'
                   }`}
+                  title={`${s.toUpperCase()} toolbar`}
                 >
                   {s.toUpperCase()}
                 </button>
@@ -138,12 +141,12 @@ export default function Toolbar() {
         </div>
 
         {/* Tools */}
-        <div className={`flex ${toolsInRow ? 'flex-row flex-wrap justify-center' : 'flex-col items-center'} gap-1.5 py-3 px-2`}>
+        <div className={`flex ${toolsInRow ? 'flex-row flex-wrap justify-center' : 'flex-col items-center'} gap-1 py-3 px-2`}>
           {TOOLS.map((tool, i) => (
             <div
               key={tool.id}
               className={mounted ? 'toolbar-enter' : ''}
-              style={{ animationDelay: `${i * 40}ms` }}
+              style={{ animationDelay: `${i * 30}ms` }}
             >
               <ToolButton
                 icon={tool.icon}
@@ -160,83 +163,84 @@ export default function Toolbar() {
         </div>
 
         {/* Divider */}
-        <div className="mx-3 border-t-2 border-gray-200" />
+        <div className="mx-3 border-t border-[rgba(255,255,255,0.06)]" />
 
         {/* Brush settings */}
         <BrushSettings size={toolbarSize} toolbarWidth={toolbarWidth} />
 
         {/* Divider */}
-        <div className="mx-3 border-t-2 border-gray-200" />
+        <div className="mx-3 border-t border-[rgba(255,255,255,0.06)]" />
 
         {/* Color palette */}
         <ColorPalette size={toolbarSize} toolbarWidth={toolbarWidth} />
 
         {/* Divider */}
-        <div className="mx-3 border-t-2 border-gray-200" />
+        <div className="mx-3 border-t border-[rgba(255,255,255,0.06)]" />
 
-        {/* Undo/Redo/Clear */}
-        <div className={`flex ${toolbarWidth >= 160 ? 'flex-row justify-center' : 'flex-col items-center'} gap-1.5 py-3 px-2`}>
+        {/* Undo / Redo / Clear */}
+        <div className={`flex ${toolbarWidth >= 155 ? 'flex-row justify-center' : 'flex-col items-center'} gap-1.5 py-3 px-2`}>
           <button
             onClick={undo}
-            disabled={historyIndex <= 0}
-            className={`${undoBtnSize} flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white text-gray-700 disabled:opacity-30 hover:bg-gray-50 cursor-pointer font-display`}
+            disabled={!canUndo}
+            className={`${btnBase} ${undoSize} ${
+              canUndo
+                ? 'text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.08)] hover:text-white'
+                : 'text-[rgba(255,255,255,0.2)]'
+            }`}
             title="Undo (Ctrl+Z)"
           >
             ↩
           </button>
           <button
             onClick={redo}
-            disabled={historyIndex >= history.length - 1}
-            className={`${undoBtnSize} flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white text-gray-700 disabled:opacity-30 hover:bg-gray-50 cursor-pointer font-display`}
+            disabled={!canRedo}
+            className={`${btnBase} ${undoSize} ${
+              canRedo
+                ? 'text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.08)] hover:text-white'
+                : 'text-[rgba(255,255,255,0.2)]'
+            }`}
             title="Redo (Ctrl+Y)"
           >
             ↪
           </button>
           <button
             onClick={() => setShowClearConfirm(true)}
-            className={`${undoBtnSize} flex items-center justify-center rounded-lg border-2 border-red-300 bg-red-50 text-red-500 hover:bg-red-100 cursor-pointer`}
+            className={`${btnBase} ${undoSize} text-red-400/60 hover:text-red-400 hover:bg-red-500/10`}
             title="Clear Canvas"
           >
             🗑
           </button>
         </div>
 
-        {/* Width indicator */}
-        <div className="text-center pb-2">
-          <span className="text-[9px] text-gray-400 font-display">{Math.round(toolbarWidth)}px</span>
-        </div>
-
-        {/* Drag handle on right edge */}
+        {/* Drag handle */}
         <div
           onMouseDown={handleDragStart}
-          className="absolute top-0 right-0 w-2 h-full cursor-col-resize group z-40"
+          className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize group z-40"
           title="Drag to resize"
         >
-          <div className="absolute top-1/2 right-0 -translate-y-1/2 w-1 h-12 rounded-full bg-gray-300 group-hover:bg-electric-blue group-hover:w-1.5 transition-all" />
+          <div className="absolute top-1/2 right-0 -translate-y-1/2 w-0.5 h-10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-accent" />
         </div>
       </div>
 
-      {/* Clear confirmation modal */}
+      {/* Clear modal */}
       <Modal isOpen={showClearConfirm} onClose={() => setShowClearConfirm(false)} title="Clear Canvas?">
         <div className="text-center">
-          <div className="text-6xl mb-4">🧹✨</div>
-          <p className="text-gray-600 font-body mb-6">
-            Erase everything and start fresh? This can't be undone!
+          <div className="text-5xl mb-4">🧹</div>
+          <p className="text-[rgba(255,255,255,0.6)] text-sm mb-6">
+            This will erase everything. This action can't be undone.
           </p>
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => setShowClearConfirm(false)}
-              className="px-6 py-2 rounded-xl border-3 border-gray-300 bg-white text-gray-700 font-bold font-display hover:bg-gray-50 cursor-pointer"
-              style={{ borderWidth: '3px' }}
+              className="px-5 py-2 rounded-xl text-sm font-semibold text-[rgba(255,255,255,0.7)] border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.06)] cursor-pointer transition-all"
             >
-              Keep It
+              Cancel
             </button>
             <button
               onClick={() => { clearCanvas(); setShowClearConfirm(false); }}
-              className="px-6 py-2 rounded-xl border-3 border-red-400 bg-red-500 text-white font-bold font-display hover:bg-red-600 cursor-pointer"
-              style={{ borderWidth: '3px' }}
+              className="px-5 py-2 rounded-xl text-sm font-semibold bg-red-500/80 text-white hover:bg-red-500 cursor-pointer transition-all"
             >
-              Clear It! 💥
+              Clear Canvas
             </button>
           </div>
         </div>

@@ -60,10 +60,9 @@ interface RightPanelProps {
   onClose: () => void;
 }
 
-/* ─── Wallpaper Preview (CSS-based thumbnail) ─── */
 function WallpaperPreview({ wallpaper, isActive }: { wallpaper: typeof WALLPAPERS[number]; isActive: boolean }) {
   const base: React.CSSProperties = {
-    width: '100%', aspectRatio: '1', borderRadius: '12px',
+    width: '100%', aspectRatio: '1', borderRadius: '10px',
     backgroundColor: wallpaper.baseColor, position: 'relative', overflow: 'hidden',
   };
   const overlays: Record<string, React.CSSProperties> = {
@@ -83,14 +82,14 @@ function WallpaperPreview({ wallpaper, isActive }: { wallpaper: typeof WALLPAPER
   return (
     <div style={base}>
       {ov && <div className="absolute inset-0" style={ov} />}
-      {isActive && <div className="absolute inset-0 border-3 border-electric-blue rounded-xl" style={{ borderWidth: '3px' }} />}
+      {isActive && (
+        <div className="absolute inset-0 rounded-[10px]" style={{ border: '2px solid #818CF8', boxShadow: 'inset 0 0 0 1px rgba(129,140,248,0.4)' }} />
+      )}
     </div>
   );
 }
 
-/* ─── Main component ─── */
 export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
-  /* Stickers state */
   const [activeCategory, setActiveCategory] = useState('Feelings');
   const [panelSize, setPanelSize] = useState<PanelSize>('md');
 
@@ -126,55 +125,55 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
 
   const categories = Object.keys(STICKER_CATEGORIES);
   const isWallpaperActive = activeTool === 'wallpaperBrush';
+  const PANEL_WIDTHS: Record<PanelSize, number> = { sm: 280, md: 360, lg: 480 };
+  const panelWidth = activeTab === 'layers' ? 280 : PANEL_WIDTHS[panelSize];
 
-  const PANEL_WIDTHS: Record<PanelSize, number> = { sm: 300, md: 380, lg: 500 };
-  const panelWidth = activeTab === 'layers' ? 300 : PANEL_WIDTHS[panelSize];
+  const panelStyle: React.CSSProperties = {
+    background: '#1E1E2E',
+    borderLeft: '1px solid rgba(255,255,255,0.06)',
+  };
 
   return (
     <div
       className={`
-        fixed top-0 right-0 h-full bg-cream/95 backdrop-blur-sm border-l-4 border-gray-300 shadow-2xl z-30
+        fixed top-0 right-0 h-full z-30 panel-scroll
         transition-all duration-300 ease-out select-none
         ${activeTab ? 'translate-x-0' : 'translate-x-full pointer-events-none'}
       `}
-      style={{ width: `${panelWidth}px` }}
+      style={{ width: `${panelWidth}px`, ...panelStyle }}
     >
-      {/* ── Header with tabs ── */}
-      <div className="flex items-center justify-between px-3 py-2 border-b-3 border-gray-200 gap-2" style={{ borderBottomWidth: '3px' }}>
-        {/* Tabs */}
-        <div className="flex gap-1">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(255,255,255,0.06)]">
+        <div className="flex gap-1.5">
           {([
-            { id: 'stickers' as const, label: '⭐ Stickers', color: 'hot-pink', border: 'pink-600' },
-            { id: 'layers' as const, label: '📑 Layers', color: 'lime', border: 'green-600' },
-            { id: 'wallpaper' as const, label: '🧱 Wallpaper', color: 'purple-500', border: 'purple-700' },
+            { id: 'stickers' as const, label: '⭐ Stickers', active: 'bg-pink/20 text-pink border-pink/30' },
+            { id: 'layers' as const, label: '📑 Layers', active: 'bg-teal/20 text-teal border-teal/30' },
+            { id: 'wallpaper' as const, label: '🧱 Wallpaper', active: 'bg-accent-2/20 text-accent-2 border-accent-2/30' },
           ]).map((tab) => (
-            <button
+            <div
               key={tab.id}
-              onClick={() => {
-                /* If we're on the tab already, close; otherwise the parent handles it via the top-bar buttons.
-                   But since this is in-panel, just keep it visible. */
-              }}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold font-display transition-colors cursor-default ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all border ${
                 activeTab === tab.id
-                  ? `bg-${tab.color} text-white border-2 border-${tab.border}`
-                  : 'bg-gray-100 text-gray-400 border-2 border-transparent'
+                  ? tab.active
+                  : 'text-[rgba(255,255,255,0.25)] border-transparent'
               }`}
             >
               {tab.label}
-            </button>
+            </div>
           ))}
         </div>
 
-        <div className="flex items-center gap-1">
-          {/* Size toggle (stickers only) */}
+        <div className="flex items-center gap-1.5">
           {activeTab === 'stickers' && (
-            <div className="flex rounded-lg border-2 border-gray-300 overflow-hidden">
+            <div className="flex rounded-lg overflow-hidden border border-[rgba(255,255,255,0.1)]">
               {(['sm', 'md', 'lg'] as PanelSize[]).map((s) => (
                 <button
                   key={s}
                   onClick={() => setPanelSize(s)}
-                  className={`px-2 py-0.5 text-[10px] font-bold font-display cursor-pointer transition-colors ${
-                    panelSize === s ? 'bg-electric-blue text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                  className={`px-2 py-0.5 text-[9px] font-bold cursor-pointer transition-colors ${
+                    panelSize === s
+                      ? 'bg-accent/30 text-accent'
+                      : 'text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)]'
                   }`}
                 >
                   {s.toUpperCase()}
@@ -184,32 +183,29 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
           )}
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white text-gray-500 hover:bg-gray-50 cursor-pointer text-sm"
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.08)] cursor-pointer transition-all text-sm"
           >
             ✕
           </button>
         </div>
       </div>
 
-      {/* ── Tab content ── */}
-      <div className="overflow-y-auto panel-scroll" style={{ maxHeight: 'calc(100vh - 52px)' }}>
+      {/* Content */}
+      <div className="overflow-y-auto panel-scroll" style={{ height: 'calc(100vh - 52px)' }}>
 
-        {/* ──────── STICKERS ──────── */}
+        {/* STICKERS */}
         {activeTab === 'stickers' && (
-          <>
-            {/* Category tabs */}
-            <div className="flex flex-wrap gap-1.5 px-3 py-2 border-b-2 border-gray-100">
+          <div className="panel-animate">
+            <div className="flex flex-wrap gap-1.5 px-4 py-3 border-b border-[rgba(255,255,255,0.05)]">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`text-xs font-bold px-2.5 py-1 rounded-full border-2 cursor-pointer transition-colors font-display
-                    ${activeCategory === cat
-                      ? cat === 'Feelings'
-                        ? 'bg-hot-pink text-white border-pink-600'
-                        : 'bg-electric-blue text-white border-blue-600'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                    }`}
+                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border cursor-pointer transition-all ${
+                    activeCategory === cat
+                      ? 'bg-accent/20 text-accent border-accent/40'
+                      : 'text-[rgba(255,255,255,0.45)] border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.2)] hover:text-[rgba(255,255,255,0.75)]'
+                  }`}
                 >
                   {cat}
                 </button>
@@ -217,10 +213,8 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
             </div>
 
             {activeCategory === 'Feelings' && (
-              <div className="mx-3 mt-2 px-3 py-2 bg-pink-50 border-2 border-pink-200 rounded-xl">
-                <p className="text-xs font-bold text-pink-600 font-display">
-                  How are you feeling today? Drag a sticker onto the canvas!
-                </p>
+              <div className="mx-4 mt-3 px-3 py-2 rounded-xl" style={{ background: 'rgba(244,114,182,0.08)', border: '1px solid rgba(244,114,182,0.2)' }}>
+                <p className="text-xs font-semibold text-pink">How are you feeling today? Tap a sticker to add it!</p>
               </div>
             )}
 
@@ -229,23 +223,23 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
               size={panelSize}
               onSelect={handleStickerSelect}
             />
-          </>
+          </div>
         )}
 
-        {/* ──────── LAYERS ──────── */}
+        {/* LAYERS */}
         {activeTab === 'layers' && (
-          <div className="p-3 space-y-2">
+          <div className="p-4 space-y-3 panel-animate">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-gray-500 font-display uppercase tracking-wider">Layers</p>
+              <span className="text-[10px] font-semibold text-[rgba(255,255,255,0.35)] uppercase tracking-wider">Layers</span>
               <button
                 onClick={addLayer}
                 disabled={layers.length >= 5}
-                className="px-2.5 py-1 text-xs font-bold font-display rounded-lg border-2 border-gray-300 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-30 cursor-pointer"
+                className="px-3 py-1 text-xs font-semibold rounded-lg border border-[rgba(255,255,255,0.12)] text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.06)] hover:text-white disabled:opacity-30 cursor-pointer transition-all"
               >
                 + Add Layer
               </button>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {[...layers].reverse().map((layer) => (
                 <LayerItem
                   key={layer.id}
@@ -260,57 +254,58 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
               ))}
             </div>
             {layers.length >= 5 && (
-              <p className="text-[10px] text-gray-400 font-display text-center">Max 5 layers reached</p>
+              <p className="text-[10px] text-[rgba(255,255,255,0.25)] text-center">Maximum 5 layers</p>
             )}
           </div>
         )}
 
-        {/* ──────── WALLPAPER ──────── */}
+        {/* WALLPAPER */}
         {activeTab === 'wallpaper' && (
-          <div className="p-3 space-y-3">
-            <div className="px-3 py-2 bg-purple-50 border-2 border-purple-200 rounded-xl">
-              <p className="text-xs font-bold text-purple-600 font-display">
-                Pick a pattern, then paint it onto the canvas like a roller!
-              </p>
+          <div className="p-4 space-y-4 panel-animate">
+            <div className="px-3 py-2.5 rounded-xl" style={{ background: 'rgba(192,132,252,0.08)', border: '1px solid rgba(192,132,252,0.2)' }}>
+              <p className="text-xs font-semibold text-accent-2">Pick a pattern, then paint it onto the canvas like a roller!</p>
             </div>
 
-            {/* Brush size slider */}
-            <div className="px-3 py-2 bg-white border-2 border-gray-200 rounded-xl space-y-1">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider font-display">
-                Roller Size: {wallpaperBrushSize}px
-              </label>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-semibold text-[rgba(255,255,255,0.35)] uppercase tracking-wider">Roller Size</span>
+                <span className="text-[11px] font-semibold text-[rgba(255,255,255,0.6)] tabular-nums">{wallpaperBrushSize}px</span>
+              </div>
               <input
-                type="range"
-                min={30}
-                max={300}
-                value={wallpaperBrushSize}
+                type="range" min={30} max={300} value={wallpaperBrushSize}
                 onChange={(e) => setWallpaperBrushSize(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                className="w-full track-accent"
               />
             </div>
 
             {isWallpaperActive && selectedWallpaper && (
-              <div className="px-3 py-2 bg-green-50 border-2 border-green-300 rounded-xl">
-                <p className="text-xs font-bold text-green-600 font-display">
-                  Roller active — draw on the canvas!
-                </p>
+              <div className="px-3 py-2.5 rounded-xl" style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.25)' }}>
+                <p className="text-xs font-semibold text-teal">Roller active — draw on the canvas!</p>
               </div>
             )}
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2.5">
               {WALLPAPERS.map((wp) => (
                 <button
                   key={wp.id}
                   onClick={() => handleWallpaperSelect(wp.id)}
-                  className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 cursor-pointer transition-all ${
+                  className={`flex flex-col items-center gap-1.5 p-2 rounded-xl cursor-pointer transition-all ${
                     selectedWallpaper === wp.id
-                      ? 'border-electric-blue bg-blue-50 scale-105 shadow-md'
-                      : 'border-gray-200 bg-white hover:border-gray-400 hover:shadow'
+                      ? 'scale-105 shadow-lg'
+                      : 'opacity-75 hover:opacity-100'
                   }`}
+                  style={{
+                    border: selectedWallpaper === wp.id
+                      ? '1px solid rgba(129,140,248,0.5)'
+                      : '1px solid rgba(255,255,255,0.08)',
+                    background: selectedWallpaper === wp.id
+                      ? 'rgba(129,140,248,0.1)'
+                      : 'rgba(255,255,255,0.03)',
+                  }}
                 >
                   <WallpaperPreview wallpaper={wp} isActive={selectedWallpaper === wp.id} />
-                  <span className="text-[10px] font-bold font-display text-gray-700 leading-tight text-center">
-                    {wp.emoji} {wp.name}
+                  <span className="text-[9px] font-semibold text-[rgba(255,255,255,0.55)] leading-tight text-center">
+                    {wp.name}
                   </span>
                 </button>
               ))}
