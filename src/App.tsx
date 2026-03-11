@@ -62,10 +62,10 @@ export default function App() {
       : topBtnBase;
 
   return (
-    <div className="w-full h-full flex overflow-hidden" style={{ background: '#F7F6F3' }}>
+    <div className="w-full h-full flex overflow-hidden" style={{ background: '#FFFFFF' }}>
       <Toolbar />
 
-      <div className="flex-1 relative">
+      <div className="flex-1 h-full relative">
         <Canvas />
 
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-20 pointer-events-none">
