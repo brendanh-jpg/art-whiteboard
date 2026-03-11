@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useCollaborationStore } from '../stores/collaborationStore';
 import { useCanvasStore } from '../stores/canvasStore';
-import { setMultiplayerSocket, setMultiplayerUserId, broadcast } from '../utils/multiplayer';
+import { setMultiplayerSocket, setMultiplayerUserId } from '../utils/multiplayer';
 import type { Reaction } from '../stores/collaborationStore';
 
 let globalWs: WebSocket | null = null;
@@ -9,7 +9,7 @@ let globalWs: WebSocket | null = null;
 export function useCollaboration() {
   const wsRef = useRef<WebSocket | null>(null);
   const {
-    addUser, removeUser, updateUserCursor, addReaction, removeReaction,
+    addUser, removeUser, updateUserCursor, addReaction,
     localUserId, localUserName, localUserColor,
     setConnected, setRoomId, setUsers,
   } = useCollaborationStore();
@@ -17,6 +17,7 @@ export function useCollaboration() {
   const {
     addRemoteLine, addRemoteSticker, updateRemoteSticker, removeRemoteSticker,
     setBackground: setCanvasBackground,
+    setRemoteCurrentLine, updateRemoteCurrentLine, removeRemoteCurrentLine,
   } = useCanvasStore();
 
   useEffect(() => {
@@ -83,14 +84,28 @@ export function useCollaboration() {
 
         case 'user-left':
           removeUser(msg.userId);
+          removeRemoteCurrentLine(msg.userId);
           break;
 
         case 'cursor':
           updateUserCursor(msg.userId, msg.x, msg.y);
           break;
 
+        case 'draw-start':
+          if (msg.line && msg.userId) {
+            setRemoteCurrentLine(msg.userId, msg.line);
+          }
+          break;
+
+        case 'draw-update':
+          if (msg.lineId && msg.userId && msg.points) {
+            updateRemoteCurrentLine(msg.userId, msg.lineId, msg.points, msg.particles);
+          }
+          break;
+
         case 'draw-end':
-          if (msg.line) {
+          if (msg.line && msg.userId) {
+            removeRemoteCurrentLine(msg.userId);
             addRemoteLine(msg.line);
           }
           break;
@@ -139,7 +154,8 @@ export function useCollaboration() {
     };
   }, [localUserId, localUserName, localUserColor, setConnected, setRoomId,
       addUser, removeUser, updateUserCursor, addRemoteLine, addRemoteSticker,
-      updateRemoteSticker, removeRemoteSticker, setCanvasBackground, addReaction, setUsers]);
+      updateRemoteSticker, removeRemoteSticker, setCanvasBackground, addReaction, setUsers,
+      setRemoteCurrentLine, updateRemoteCurrentLine, removeRemoteCurrentLine]);
 
   const disconnect = useCallback(() => {
     if (globalWs) {
@@ -160,26 +176,6 @@ export function useCollaboration() {
     }
   }, []);
 
-  const broadcastCursor = useCallback((x: number, y: number) => {
-    send({ type: 'cursor', userId: localUserId, x, y });
-  }, [send, localUserId]);
-
-  const broadcastDrawEnd = useCallback((line: unknown) => {
-    send({ type: 'draw-end', userId: localUserId, line });
-  }, [send, localUserId]);
-
-  const broadcastStickerAdd = useCallback((sticker: unknown) => {
-    send({ type: 'sticker-add', userId: localUserId, sticker });
-  }, [send, localUserId]);
-
-  const broadcastStickerUpdate = useCallback((stickerId: string, props: unknown) => {
-    send({ type: 'sticker-update', userId: localUserId, stickerId, props });
-  }, [send, localUserId]);
-
-  const broadcastStickerRemove = useCallback((stickerId: string) => {
-    send({ type: 'sticker-remove', userId: localUserId, stickerId });
-  }, [send, localUserId]);
-
   const broadcastBackground = useCallback((background: string) => {
     send({ type: 'background-change', userId: localUserId, background });
   }, [send, localUserId]);
@@ -199,12 +195,17 @@ export function useCollaboration() {
   const hasConnectedRef = useRef(false);
 
   useEffect(() => {
+    if (!localUserName || hasConnectedRef.current) return;
     const params = new URLSearchParams(window.location.search);
-    const room = params.get('room');
-    if (room && localUserName && !hasConnectedRef.current) {
-      hasConnectedRef.current = true;
-      connect(room);
+    let room = params.get('room');
+    if (!room) {
+      room = Math.random().toString(36).slice(2, 10);
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', room);
+      window.history.replaceState({}, '', url.toString());
     }
+    hasConnectedRef.current = true;
+    connect(room);
   }, [localUserName, connect]);
 
   useEffect(() => {
@@ -216,13 +217,7 @@ export function useCollaboration() {
   return {
     connect,
     disconnect,
-    broadcastCursor,
-    broadcastDrawEnd,
-    broadcastStickerAdd,
-    broadcastStickerUpdate,
-    broadcastStickerRemove,
     broadcastBackground,
     sendReaction,
-    send,
   };
 }

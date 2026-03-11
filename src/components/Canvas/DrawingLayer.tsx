@@ -156,13 +156,16 @@ interface DrawingLayerProps {
 export default function DrawingLayer({ layerId }: DrawingLayerProps) {
   const lines = useCanvasStore((s) => s.lines);
   const currentLine = useCanvasStore((s) => s.currentLine);
+  const remoteCurrentLines = useCanvasStore((s) => s.remoteCurrentLines);
 
   const layerLines = lines.filter((l) => l.layerId === layerId);
+  const remoteLines = Array.from(remoteCurrentLines.values()).filter((l) => l.layerId === layerId);
 
   return (
     <>
       {layerLines.map(renderLine)}
       {currentLine && currentLine.layerId === layerId && renderLine(currentLine)}
+      {remoteLines.map(renderLine)}
     </>
   );
 }

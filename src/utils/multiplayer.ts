@@ -19,6 +19,14 @@ export function broadcastCursor(x: number, y: number) {
   broadcast({ type: 'cursor', x, y });
 }
 
+export function broadcastDrawStart(line: unknown) {
+  broadcast({ type: 'draw-start', line });
+}
+
+export function broadcastDrawUpdate(lineId: string, points: number[], particles?: unknown) {
+  broadcast({ type: 'draw-update', lineId, points, particles });
+}
+
 export function broadcastDrawEnd(line: unknown) {
   broadcast({ type: 'draw-end', line });
 }

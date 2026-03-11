@@ -24,7 +24,7 @@ export default function App() {
 
   const { background, setBackground, addToGallery, newCanvas, lines, stickers } = useCanvasStore();
   const { isConnected, roomId } = useCollaborationStore();
-  const { sendReaction, broadcastBackground, connect } = useCollaboration();
+  const { sendReaction, broadcastBackground } = useCollaboration();
 
   const togglePanel = (tab: PanelTab) => {
     setActivePanel((prev) => (prev === tab ? null : tab));
@@ -68,16 +68,10 @@ export default function App() {
   };
 
   const handleShare = () => {
-    let room = roomId;
-    if (!room) {
-      room = Math.random().toString(36).slice(2, 10);
-      const url = new URL(window.location.href);
-      url.searchParams.set('room', room);
-      window.history.replaceState({}, '', url.toString());
-      connect(room);
-    }
     const url = new URL(window.location.href);
-    url.searchParams.set('room', room);
+    if (roomId) {
+      url.searchParams.set('room', roomId);
+    }
     navigator.clipboard.writeText(url.toString()).then(() => {
       setShareTooltip(true);
       setTimeout(() => setShareTooltip(false), 2000);

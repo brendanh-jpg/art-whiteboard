@@ -99,6 +99,11 @@ export interface CanvasState {
   removeFromGallery: (id: string) => void;
   loadFromGallery: (id: string) => void;
 
+  remoteCurrentLines: Map<string, DrawLine>;
+  setRemoteCurrentLine: (userId: string, line: DrawLine) => void;
+  updateRemoteCurrentLine: (userId: string, lineId: string, points: number[], particles?: DrawLine['particles']) => void;
+  removeRemoteCurrentLine: (userId: string) => void;
+
   addRemoteLine: (line: DrawLine) => void;
   addRemoteSticker: (sticker: StickerObject) => void;
   updateRemoteSticker: (id: string, props: Partial<StickerObject>) => void;
@@ -187,6 +192,8 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   historyIndex: 0,
 
   gallery: savedGallery,
+
+  remoteCurrentLines: new Map<string, DrawLine>(),
 
   setStageScale: (scale) => set({ stageScale: scale }),
   setStagePosition: (x, y) => set({ stageX: x, stageY: y }),
@@ -362,6 +369,29 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
       }
     } catch {}
   },
+
+  setRemoteCurrentLine: (userId, line) =>
+    set((state) => {
+      const newMap = new Map(state.remoteCurrentLines);
+      newMap.set(userId, line);
+      return { remoteCurrentLines: newMap };
+    }),
+
+  updateRemoteCurrentLine: (userId, lineId, points, particles) =>
+    set((state) => {
+      const existing = state.remoteCurrentLines.get(userId);
+      if (!existing || existing.id !== lineId) return {};
+      const newMap = new Map(state.remoteCurrentLines);
+      newMap.set(userId, { ...existing, points, ...(particles ? { particles } : {}) });
+      return { remoteCurrentLines: newMap };
+    }),
+
+  removeRemoteCurrentLine: (userId) =>
+    set((state) => {
+      const newMap = new Map(state.remoteCurrentLines);
+      newMap.delete(userId);
+      return { remoteCurrentLines: newMap };
+    }),
 
   addRemoteLine: (line) =>
     set((state) => ({

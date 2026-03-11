@@ -7,7 +7,7 @@ import DrawingLayer from './DrawingLayer';
 import StickerLayer from './StickerLayer';
 import CursorOverlay from './CursorOverlay';
 import { generateSprayParticles, generateGlitterParticles, getRainbowColor } from '../../utils/particles';
-import { broadcastCursor, broadcastDrawEnd, broadcastStickerAdd } from '../../utils/multiplayer';
+import { broadcastCursor, broadcastDrawStart, broadcastDrawUpdate, broadcastDrawEnd, broadcastStickerAdd } from '../../utils/multiplayer';
 
 let idCounter = 0;
 
@@ -127,7 +127,7 @@ export default function Canvas() {
 
     // Wallpaper brush
     if (activeTool === 'wallpaperBrush' && selectedWallpaper) {
-      setCurrentLine({
+      const line = {
         id,
         tool: 'wallpaperBrush',
         points: [pos.x, pos.y],
@@ -136,13 +136,15 @@ export default function Canvas() {
         opacity,
         layerId: activeLayerId,
         wallpaperId: selectedWallpaper,
-      });
+      };
+      setCurrentLine(line);
+      broadcastDrawStart(line);
       return;
     }
 
     if (activeTool === 'sprayPaint') {
       const particles = generateSprayParticles(pos.x, pos.y, sprayRadius, sprayDensity, color);
-      setCurrentLine({
+      const line = {
         id,
         tool: 'sprayPaint',
         points: [pos.x, pos.y],
@@ -151,13 +153,15 @@ export default function Canvas() {
         opacity,
         layerId: activeLayerId,
         particles,
-      });
+      };
+      setCurrentLine(line);
+      broadcastDrawStart(line);
       return;
     }
 
     if (activeTool === 'glitterPen') {
       const particles = generateGlitterParticles(pos.x, pos.y, brushSize * 2, color);
-      setCurrentLine({
+      const line = {
         id,
         tool: 'glitterPen',
         points: [pos.x, pos.y],
@@ -166,13 +170,15 @@ export default function Canvas() {
         opacity,
         layerId: activeLayerId,
         particles,
-      });
+      };
+      setCurrentLine(line);
+      broadcastDrawStart(line);
       return;
     }
 
     const lineColor = activeTool === 'rainbowBrush' ? getRainbowColor(rainbowIndex.current++) : color;
 
-    setCurrentLine({
+    const line = {
       id,
       tool: activeTool,
       points: [pos.x, pos.y],
@@ -180,7 +186,9 @@ export default function Canvas() {
       strokeWidth: activeTool === 'highlighter' ? brushSize * 3 : brushSize,
       opacity: activeTool === 'highlighter' ? 0.4 : opacity,
       layerId: activeLayerId,
-    });
+    };
+    setCurrentLine(line);
+    broadcastDrawStart(line);
   }, [activeTool, color, brushSize, opacity, activeLayerId, getPointerPosition, sprayRadius, sprayDensity, activeShape, fontSize, fontFamily, selectedWallpaper, wallpaperBrushSize]);
 
   const handleMouseMove = useCallback(() => {
@@ -196,35 +204,34 @@ export default function Canvas() {
 
     if (current.tool === 'sprayPaint') {
       const newParticles = generateSprayParticles(pos.x, pos.y, sprayRadius, sprayDensity * 0.3, color);
-      updateCurrentLine(
-        [...current.points, pos.x, pos.y],
-        [...(current.particles || []), ...newParticles]
-      );
+      const newPoints = [...current.points, pos.x, pos.y];
+      const allParticles = [...(current.particles || []), ...newParticles];
+      updateCurrentLine(newPoints, allParticles);
+      broadcastDrawUpdate(current.id, newPoints, allParticles);
       return;
     }
 
     if (current.tool === 'glitterPen') {
       const newParticles = generateGlitterParticles(pos.x, pos.y, brushSize * 2, color);
-      updateCurrentLine(
-        [...current.points, pos.x, pos.y],
-        [...(current.particles || []), ...newParticles]
-      );
+      const newPoints = [...current.points, pos.x, pos.y];
+      const allParticles = [...(current.particles || []), ...newParticles];
+      updateCurrentLine(newPoints, allParticles);
+      broadcastDrawUpdate(current.id, newPoints, allParticles);
       return;
-    }
-
-    if (current.tool === 'rainbowBrush') {
-      // Continue the current line
     }
 
     if (current.tool === 'line') {
       const startX = current.points[0];
       const startY = current.points[1];
-      updateCurrentLine([startX, startY, pos.x, pos.y]);
+      const newPoints = [startX, startY, pos.x, pos.y];
+      updateCurrentLine(newPoints);
+      broadcastDrawUpdate(current.id, newPoints);
       return;
     }
 
-    // Wallpaper brush + pencil + highlighter + eraser all just extend points
-    updateCurrentLine([...current.points, pos.x, pos.y]);
+    const newPoints = [...current.points, pos.x, pos.y];
+    updateCurrentLine(newPoints);
+    broadcastDrawUpdate(current.id, newPoints);
   }, [getPointerPosition, color, brushSize, sprayRadius, sprayDensity]);
 
   const handleMouseUp = useCallback(() => {
