@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Konva from 'konva';
 import Canvas from './components/Canvas/Canvas';
 import Toolbar from './components/Toolbar/Toolbar';
@@ -8,7 +8,10 @@ import GalleryView from './components/Gallery/GalleryView';
 import UserPresence from './components/Collaboration/UserPresence';
 import ReactionOverlay from './components/Collaboration/ReactionOverlay';
 import PassTheCanvas from './components/Collaboration/PassTheCanvas';
+import NameEntryModal from './components/Collaboration/NameEntryModal';
+import SaveModal from './components/Collaboration/SaveModal';
 import { useCanvasStore } from './stores/canvasStore';
+import { useCollaborationStore } from './stores/collaborationStore';
 import { useCollaboration } from './hooks/useCollaboration';
 import { BACKGROUND_PRESETS } from './utils/colors';
 
@@ -16,9 +19,12 @@ export default function App() {
   const [activePanel, setActivePanel] = useState<PanelTab>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [bgMenuOpen, setBgMenuOpen] = useState(false);
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [shareTooltip, setShareTooltip] = useState(false);
 
-  const { background, setBackground, addToGallery } = useCanvasStore();
-  const { sendReaction } = useCollaboration();
+  const { background, setBackground, addToGallery, newCanvas, lines, stickers } = useCanvasStore();
+  const { isConnected, roomId } = useCollaborationStore();
+  const { sendReaction, broadcastBackground, connect } = useCollaboration();
 
   const togglePanel = (tab: PanelTab) => {
     setActivePanel((prev) => (prev === tab ? null : tab));
@@ -37,12 +43,45 @@ export default function App() {
     }
   };
 
-  const handleSaveToGallery = () => {
+  const handleSave = useCallback((name: string) => {
     const konvaStage = Konva.stages[0];
     if (konvaStage) {
       const thumbnail = konvaStage.toDataURL({ pixelRatio: 0.3 });
-      addToGallery(thumbnail);
+      addToGallery(name, thumbnail);
     }
+  }, [addToGallery]);
+
+  const handleNewCanvas = () => {
+    if (lines.length === 0 && stickers.length === 0) {
+      newCanvas();
+      return;
+    }
+    if (window.confirm('Start a new canvas? Your current work is auto-saved, but unsaved gallery items will be lost.')) {
+      newCanvas();
+    }
+  };
+
+  const handleBackgroundChange = (color: string) => {
+    setBackground(color);
+    broadcastBackground(color);
+    setBgMenuOpen(false);
+  };
+
+  const handleShare = () => {
+    let room = roomId;
+    if (!room) {
+      room = Math.random().toString(36).slice(2, 10);
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', room);
+      window.history.replaceState({}, '', url.toString());
+      connect(room);
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.set('room', room);
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      setShareTooltip(true);
+      setTimeout(() => setShareTooltip(false), 2000);
+    }).catch(() => {});
   };
 
   const REACTION_EMOJIS = ['👏', '🎨', '✨', '😂'];
@@ -70,41 +109,47 @@ export default function App() {
 
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-20 pointer-events-none">
 
-          <div className="relative pointer-events-auto">
-            <button
-              onClick={() => setBgMenuOpen(!bgMenuOpen)}
-              className={topBtnBase}
-            >
-              <span>🎨</span>
-              <span>Background</span>
-            </button>
-            {bgMenuOpen && (
-              <div
-                className="absolute top-full mt-2 left-0 rounded-xl shadow-2xl p-2 space-y-0.5 min-w-[140px]"
-                style={{
-                  background: '#FFFFFF',
-                  border: '1px solid rgba(0,0,0,0.08)',
-                }}
+          <div className="flex items-center gap-1.5 pointer-events-auto">
+            <div className="relative">
+              <button
+                onClick={() => setBgMenuOpen(!bgMenuOpen)}
+                className={topBtnBase}
               >
-                {BACKGROUND_PRESETS.map((bg) => (
-                  <button
-                    key={bg.id}
-                    onClick={() => { setBackground(bg.color); setBgMenuOpen(false); }}
-                    className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
-                      background === bg.color
-                        ? 'bg-accent/20 text-accent'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                    }`}
-                  >
-                    <div
-                      className="w-4 h-4 rounded flex-shrink-0"
-                      style={{ backgroundColor: bg.color, border: '1px solid rgba(0,0,0,0.1)' }}
-                    />
-                    {bg.name}
-                  </button>
-                ))}
-              </div>
-            )}
+                <span>🎨</span>
+                <span>Background</span>
+              </button>
+              {bgMenuOpen && (
+                <div
+                  className="absolute top-full mt-2 left-0 rounded-xl shadow-2xl p-2 space-y-0.5 min-w-[140px]"
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid rgba(0,0,0,0.08)',
+                  }}
+                >
+                  {BACKGROUND_PRESETS.map((bg) => (
+                    <button
+                      key={bg.id}
+                      onClick={() => handleBackgroundChange(bg.color)}
+                      className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                        background === bg.color
+                          ? 'bg-accent/20 text-accent'
+                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                      }`}
+                    >
+                      <div
+                        className="w-4 h-4 rounded flex-shrink-0"
+                        style={{ backgroundColor: bg.color, border: '1px solid rgba(0,0,0,0.1)' }}
+                      />
+                      {bg.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button onClick={handleNewCanvas} className={topBtnBase} title="New Canvas">
+              <span>📄</span> New
+            </button>
           </div>
 
           <div className="flex items-center gap-1.5 pointer-events-auto">
@@ -156,7 +201,7 @@ export default function App() {
 
             <div className="w-px h-5" style={{ background: 'rgba(0,0,0,0.1)' }} />
 
-            <button onClick={handleSaveToGallery} className={topBtnBase} title="Save to Gallery">
+            <button onClick={() => setSaveModalOpen(true)} className={topBtnBase} title="Save to Gallery">
               <span>💾</span> Save
             </button>
             <button onClick={handleExportPNG} className={topBtnBase} title="Export as PNG">
@@ -168,6 +213,27 @@ export default function App() {
 
             <div className="w-px h-5" style={{ background: 'rgba(0,0,0,0.1)' }} />
 
+            <div className="relative">
+              <button onClick={handleShare} className={topBtnBase} title="Share room link">
+                <span>🔗</span> Share
+              </button>
+              {shareTooltip && (
+                <div
+                  className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-lg text-[10px] font-semibold text-white whitespace-nowrap"
+                  style={{ background: '#34D399' }}
+                >
+                  Link copied!
+                </div>
+              )}
+            </div>
+
+            {isConnected && (
+              <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold text-emerald-600" style={{ background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)' }}>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Live
+              </div>
+            )}
+
             <UserPresence />
           </div>
         </div>
@@ -175,9 +241,11 @@ export default function App() {
 
       <RightPanel activeTab={activePanel} onClose={() => setActivePanel(null)} />
       <GalleryView isOpen={galleryOpen} onClose={() => setGalleryOpen(false)} />
+      <SaveModal isOpen={saveModalOpen} onClose={() => setSaveModalOpen(false)} onSave={handleSave} />
 
       <ReactionOverlay />
       <PassTheCanvas />
+      <NameEntryModal />
     </div>
   );
 }

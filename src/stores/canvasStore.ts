@@ -8,19 +8,15 @@ export interface DrawLine {
   strokeWidth: number;
   opacity: number;
   layerId: string;
-  // For spray paint particles
   particles?: Array<{ x: number; y: number; size: number; color: string; opacity: number }>;
-  // For text
   text?: string;
   fontSize?: number;
   fontFamily?: string;
   x?: number;
   y?: number;
-  // For shapes
   shapeType?: string;
   width?: number;
   height?: number;
-  // For wallpaper brush
   wallpaperId?: string;
 }
 
@@ -45,8 +41,14 @@ export interface Layer {
   locked: boolean;
 }
 
+export interface GalleryItem {
+  id: string;
+  name: string;
+  thumbnail: string;
+  timestamp: number;
+}
+
 export interface CanvasState {
-  // Canvas dimensions and view
   canvasWidth: number;
   canvasHeight: number;
   stageScale: number;
@@ -54,24 +56,19 @@ export interface CanvasState {
   stageY: number;
   background: string;
 
-  // Drawing data
   lines: DrawLine[];
   currentLine: DrawLine | null;
   stickers: StickerObject[];
   selectedStickerId: string | null;
 
-  // Layers
   layers: Layer[];
   activeLayerId: string;
 
-  // Undo/Redo
   history: DrawLine[][];
   historyIndex: number;
 
-  // Gallery
-  gallery: Array<{ id: string; thumbnail: string; timestamp: number }>;
+  gallery: GalleryItem[];
 
-  // Actions
   setStageScale: (scale: number) => void;
   setStagePosition: (x: number, y: number) => void;
   setBackground: (bg: string) => void;
@@ -96,8 +93,16 @@ export interface CanvasState {
   redo: () => void;
   pushHistory: () => void;
   clearCanvas: () => void;
+  newCanvas: () => void;
 
-  addToGallery: (thumbnail: string) => void;
+  addToGallery: (name: string, thumbnail: string) => void;
+  removeFromGallery: (id: string) => void;
+  loadFromGallery: (id: string) => void;
+
+  addRemoteLine: (line: DrawLine) => void;
+  addRemoteSticker: (sticker: StickerObject) => void;
+  updateRemoteSticker: (id: string, props: Partial<StickerObject>) => void;
+  removeRemoteSticker: (id: string) => void;
 }
 
 const LAYER_NAMES = ['Layer Cake 1', 'Secret Layer', 'Doodle Zone', 'Mystery Layer', 'Top Secret'];
@@ -105,26 +110,83 @@ const LAYER_NAMES = ['Layer Cake 1', 'Secret Layer', 'Doodle Zone', 'Mystery Lay
 let lineIdCounter = 0;
 const genLineId = () => `line-${++lineIdCounter}`;
 
+const LS_KEY = 'playspace-canvas';
+const LS_GALLERY_KEY = 'playspace-gallery';
+
+function loadCanvasFromStorage(): Partial<CanvasState> | null {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    return {
+      lines: data.lines || [],
+      stickers: data.stickers || [],
+      background: data.background || '#FFFFFF',
+      layers: data.layers || [{ id: 'layer-1', name: 'Layer Cake 1', visible: true, locked: false }],
+      activeLayerId: data.activeLayerId || 'layer-1',
+    };
+  } catch {
+    return null;
+  }
+}
+
+function loadGalleryFromStorage(): GalleryItem[] {
+  try {
+    const raw = localStorage.getItem(LS_GALLERY_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function saveGalleryToStorage(gallery: GalleryItem[]) {
+  try {
+    localStorage.setItem(LS_GALLERY_KEY, JSON.stringify(gallery));
+  } catch {}
+}
+
+let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function debouncedSaveCanvas(state: CanvasState) {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    try {
+      const data = {
+        lines: state.lines,
+        stickers: state.stickers,
+        background: state.background,
+        layers: state.layers,
+        activeLayerId: state.activeLayerId,
+      };
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+    } catch {}
+  }, 500);
+}
+
+const saved = loadCanvasFromStorage();
+const savedGallery = loadGalleryFromStorage();
+
 export const useCanvasStore = create<CanvasState>((set, get) => ({
   canvasWidth: 3000,
   canvasHeight: 3000,
   stageScale: 1,
   stageX: 0,
   stageY: 0,
-  background: '#FFFFFF',
+  background: saved?.background || '#FFFFFF',
 
-  lines: [],
+  lines: saved?.lines || [],
   currentLine: null,
-  stickers: [],
+  stickers: saved?.stickers || [],
   selectedStickerId: null,
 
-  layers: [{ id: 'layer-1', name: 'Layer Cake 1', visible: true, locked: false }],
-  activeLayerId: 'layer-1',
+  layers: saved?.layers || [{ id: 'layer-1', name: 'Layer Cake 1', visible: true, locked: false }],
+  activeLayerId: saved?.activeLayerId || 'layer-1',
 
-  history: [[]],
+  history: [saved?.lines || []],
   historyIndex: 0,
 
-  gallery: [],
+  gallery: savedGallery,
 
   setStageScale: (scale) => set({ stageScale: scale }),
   setStagePosition: (x, y) => set({ stageX: x, stageY: y }),
@@ -227,7 +289,6 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
     set((state) => {
       const newHistory = state.history.slice(0, state.historyIndex + 1);
       newHistory.push([...state.lines]);
-      // Keep max 50 history entries
       if (newHistory.length > 50) newHistory.shift();
       return { history: newHistory, historyIndex: newHistory.length - 1 };
     }),
@@ -238,11 +299,92 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
     set({ lines: [], stickers: [], currentLine: null });
   },
 
-  addToGallery: (thumbnail) =>
+  newCanvas: () => {
+    set({
+      lines: [],
+      stickers: [],
+      currentLine: null,
+      background: '#FFFFFF',
+      layers: [{ id: 'layer-1', name: 'Layer Cake 1', visible: true, locked: false }],
+      activeLayerId: 'layer-1',
+      history: [[]],
+      historyIndex: 0,
+      selectedStickerId: null,
+    });
+    try { localStorage.removeItem(LS_KEY); } catch {}
+  },
+
+  addToGallery: (name, thumbnail) => {
+    const state = get();
+    const id = `gallery-${Date.now()}`;
+    const newItem: GalleryItem = { id, name, thumbnail, timestamp: Date.now() };
+    const newGallery = [...state.gallery, newItem];
+    saveGalleryToStorage(newGallery);
+    try {
+      const saveData = {
+        lines: state.lines,
+        stickers: state.stickers,
+        background: state.background,
+        layers: state.layers,
+        activeLayerId: state.activeLayerId,
+      };
+      localStorage.setItem(`playspace-save-${id}`, JSON.stringify(saveData));
+    } catch {}
+    set({ gallery: newGallery });
+  },
+
+  removeFromGallery: (id) =>
+    set((state) => {
+      const newGallery = state.gallery.filter((g) => g.id !== id);
+      saveGalleryToStorage(newGallery);
+      return { gallery: newGallery };
+    }),
+
+  loadFromGallery: (id) => {
+    const state = get();
+    const item = state.gallery.find((g) => g.id === id);
+    if (!item) return;
+    try {
+      const raw = localStorage.getItem(`playspace-save-${id}`);
+      if (raw) {
+        const data = JSON.parse(raw);
+        set({
+          lines: data.lines || [],
+          stickers: data.stickers || [],
+          background: data.background || '#FFFFFF',
+          layers: data.layers || [{ id: 'layer-1', name: 'Layer Cake 1', visible: true, locked: false }],
+          activeLayerId: data.activeLayerId || 'layer-1',
+          history: [data.lines || []],
+          historyIndex: 0,
+          currentLine: null,
+          selectedStickerId: null,
+        });
+      }
+    } catch {}
+  },
+
+  addRemoteLine: (line) =>
     set((state) => ({
-      gallery: [
-        ...state.gallery,
-        { id: `gallery-${Date.now()}`, thumbnail, timestamp: Date.now() },
-      ],
+      lines: [...state.lines, line],
+    })),
+
+  addRemoteSticker: (sticker) =>
+    set((state) => ({
+      stickers: [...state.stickers, sticker],
+    })),
+
+  updateRemoteSticker: (id, props) =>
+    set((state) => ({
+      stickers: state.stickers.map((s) => (s.id === id ? { ...s, ...props } : s)),
+    })),
+
+  removeRemoteSticker: (id) =>
+    set((state) => ({
+      stickers: state.stickers.filter((s) => s.id !== id),
+      selectedStickerId: state.selectedStickerId === id ? null : state.selectedStickerId,
     })),
 }));
+
+useCanvasStore.subscribe((state) => {
+  debouncedSaveCanvas(state);
+});

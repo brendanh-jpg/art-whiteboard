@@ -6,6 +6,7 @@ import { WALLPAPERS } from '../../utils/wallpapers';
 import StickerCategory from '../Stickers/StickerCategory';
 import LayerItem from '../Layers/LayerItem';
 import type { PanelSize } from '../Stickers/StickerItem';
+import { broadcastStickerAdd } from '../../utils/multiplayer';
 
 export type PanelTab = 'stickers' | 'layers' | 'wallpaper' | null;
 
@@ -170,11 +171,13 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
     const centerY = (stageH / 2 - stageY) / stageScale;
     const x = centerX + (Math.random() - 0.5) * 80;
     const y = centerY + (Math.random() - 0.5) * 80;
-    addSticker({
+    const sticker = {
       id: `sticker-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       emoji, x, y, width: 60, height: 60, rotation: 0, scaleX: 1, scaleY: 1,
       layerId: activeLayerId, isAnimating: true,
-    });
+    };
+    addSticker(sticker);
+    broadcastStickerAdd(sticker);
   };
 
   const handleWallpaperSelect = (wpId: string) => {

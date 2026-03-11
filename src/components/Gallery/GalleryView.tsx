@@ -8,8 +8,27 @@ interface GalleryViewProps {
 
 export default function GalleryView({ isOpen, onClose }: GalleryViewProps) {
   const gallery = useCanvasStore((s) => s.gallery);
+  const removeFromGallery = useCanvasStore((s) => s.removeFromGallery);
+  const loadFromGallery = useCanvasStore((s) => s.loadFromGallery);
 
   if (!isOpen) return null;
+
+  const handleLoad = (id: string) => {
+    loadFromGallery(id);
+    onClose();
+  };
+
+  const handleDelete = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    removeFromGallery(id);
+    try { localStorage.removeItem(`playspace-save-${id}`); } catch {}
+  };
+
+  const formatDate = (ts: number) => {
+    return new Date(ts).toLocaleDateString(undefined, {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -45,14 +64,27 @@ export default function GalleryView({ isOpen, onClose }: GalleryViewProps) {
             {gallery.map((item) => (
               <div
                 key={item.id}
-                className="aspect-square rounded-xl overflow-hidden hover:scale-[1.02] transition-transform"
+                className="group relative rounded-xl overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer"
                 style={{ border: '1px solid rgba(0,0,0,0.08)' }}
+                onClick={() => handleLoad(item.id)}
               >
-                <img
-                  src={item.thumbnail}
-                  alt="Saved artwork"
-                  className="w-full h-full object-cover"
-                />
+                <div className="aspect-square">
+                  <img
+                    src={item.thumbnail}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5 bg-gradient-to-t from-black/60 to-transparent">
+                  <p className="text-[10px] font-semibold text-white truncate">{item.name}</p>
+                  <p className="text-[9px] text-white/60">{formatDate(item.timestamp)}</p>
+                </div>
+                <button
+                  onClick={(e) => handleDelete(item.id, e)}
+                  className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/40 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/60"
+                >
+                  ✕
+                </button>
               </div>
             ))}
           </div>

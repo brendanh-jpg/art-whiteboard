@@ -7,6 +7,7 @@ import DrawingLayer from './DrawingLayer';
 import StickerLayer from './StickerLayer';
 import CursorOverlay from './CursorOverlay';
 import { generateSprayParticles, generateGlitterParticles, getRainbowColor } from '../../utils/particles';
+import { broadcastCursor, broadcastDrawEnd, broadcastStickerAdd } from '../../utils/multiplayer';
 
 let idCounter = 0;
 
@@ -97,7 +98,7 @@ export default function Canvas() {
       const pos = getPointerPosition();
       if (!pos) return;
       const id = `line-${++idCounter}`;
-      addLine({
+      const line = {
         id,
         tool: 'shapeStamp',
         points: [],
@@ -110,8 +111,10 @@ export default function Canvas() {
         y: pos.y,
         width: brushSize * 10,
         height: brushSize * 10,
-      });
+      };
+      addLine(line);
       pushHistory();
+      broadcastDrawEnd(line);
       addRecentColor(color);
       return;
     }
@@ -181,8 +184,11 @@ export default function Canvas() {
   }, [activeTool, color, brushSize, opacity, activeLayerId, getPointerPosition, sprayRadius, sprayDensity, activeShape, fontSize, fontFamily, selectedWallpaper, wallpaperBrushSize]);
 
   const handleMouseMove = useCallback(() => {
-    if (!isDrawing.current) return;
     const pos = getPointerPosition();
+    if (pos) {
+      broadcastCursor(pos.x, pos.y);
+    }
+    if (!isDrawing.current) return;
     if (!pos) return;
 
     const current = useCanvasStore.getState().currentLine;
@@ -229,6 +235,7 @@ export default function Canvas() {
       addLine(current);
       setCurrentLine(null);
       pushHistory();
+      broadcastDrawEnd(current);
       if (current.tool !== 'wallpaperBrush') {
         addRecentColor(color);
       }
@@ -241,7 +248,7 @@ export default function Canvas() {
       return;
     }
     const id = `line-${++idCounter}`;
-    addLine({
+    const line = {
       id,
       tool: 'text',
       points: [],
@@ -254,8 +261,10 @@ export default function Canvas() {
       fontFamily,
       x: textInput.x,
       y: textInput.y,
-    });
+    };
+    addLine(line);
     pushHistory();
+    broadcastDrawEnd(line);
     addRecentColor(color);
     setTextInput((p) => ({ ...p, visible: false }));
   }, [color, opacity, activeLayerId, fontSize, fontFamily, textInput.x, textInput.y]);
@@ -332,7 +341,7 @@ export default function Canvas() {
     const rect = container.getBoundingClientRect();
     const dropX = (e.clientX - rect.left - stageX) / stageScale;
     const dropY = (e.clientY - rect.top - stageY) / stageScale;
-    addSticker({
+    const sticker = {
       id: `sticker-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       emoji,
       x: dropX,
@@ -344,7 +353,9 @@ export default function Canvas() {
       scaleY: 1,
       layerId: activeLayerId,
       isAnimating: true,
-    });
+    };
+    addSticker(sticker);
+    broadcastStickerAdd(sticker);
   }, [stageX, stageY, stageScale, activeLayerId, addSticker]);
 
   const visibleLayers = layers.filter((l) => l.visible);

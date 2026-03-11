@@ -3,6 +3,7 @@ import { Group, Image as KonvaImage, Transformer } from 'react-konva';
 import { useCanvasStore } from '../../stores/canvasStore';
 import type { StickerObject } from '../../stores/canvasStore';
 import Konva from 'konva';
+import { broadcastStickerUpdate } from '../../utils/multiplayer';
 
 // Cache emoji images so we don't re-render them every time
 const emojiImageCache = new Map<string, HTMLCanvasElement>();
@@ -91,21 +92,22 @@ function StickerItem({ sticker, isSelected, onSelect }: StickerItemProps) {
         onClick={onSelect}
         onTap={onSelect}
         onDragEnd={(e) => {
-          updateSticker(sticker.id, {
-            x: e.target.x(),
-            y: e.target.y(),
-          });
+          const props = { x: e.target.x(), y: e.target.y() };
+          updateSticker(sticker.id, props);
+          broadcastStickerUpdate(sticker.id, props);
         }}
         onTransformEnd={() => {
           const node = shapeRef.current;
           if (!node) return;
-          updateSticker(sticker.id, {
+          const props = {
             x: node.x(),
             y: node.y(),
             rotation: node.rotation(),
             scaleX: node.scaleX(),
             scaleY: node.scaleY(),
-          });
+          };
+          updateSticker(sticker.id, props);
+          broadcastStickerUpdate(sticker.id, props);
         }}
       >
         <KonvaImage
