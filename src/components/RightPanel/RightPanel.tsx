@@ -12,11 +12,9 @@ export type PanelTab = 'stickers' | 'layers' | 'wallpaper' | null;
 const STICKER_CATEGORIES: Record<string, Array<{ emoji: string; label: string }>> = {
   'Feelings': [
     { emoji: '😊', label: 'Happy' }, { emoji: '😢', label: 'Sad' }, { emoji: '😠', label: 'Angry' },
-    { emoji: '😰', label: 'Anxious' }, { emoji: '😕', label: 'Confused' }, { emoji: '😤', label: 'Frustrated' },
-    { emoji: '🥹', label: 'Proud' }, { emoji: '😨', label: 'Scared' }, { emoji: '🤪', label: 'Silly' },
-    { emoji: '😌', label: 'Calm' }, { emoji: '🥰', label: 'Loved' }, { emoji: '😴', label: 'Tired' },
-    { emoji: '🤔', label: 'Thoughtful' }, { emoji: '😎', label: 'Confident' }, { emoji: '🥺', label: 'Hopeful' },
-    { emoji: '😮', label: 'Surprised' },
+    { emoji: '😰', label: 'Anxious' }, { emoji: '🥹', label: 'Proud' }, { emoji: '😨', label: 'Scared' },
+    { emoji: '🤪', label: 'Silly' }, { emoji: '😌', label: 'Calm' }, { emoji: '🥰', label: 'Loved' },
+    { emoji: '😴', label: 'Tired' }, { emoji: '🤔', label: 'Thoughtful' }, { emoji: '😎', label: 'Confident' },
   ],
   'Emoji': [
     { emoji: '😀', label: 'Grinning' }, { emoji: '😂', label: 'Laughing' }, { emoji: '🥳', label: 'Party' },
