@@ -19,19 +19,34 @@ export default function Canvas() {
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [textInput, setTextInput] = useState<{ x: number; y: number; visible: boolean }>({ x: 0, y: 0, visible: false });
 
-  // Measure container with ResizeObserver for reliable sizing
+  // Measure container and keep stage sized to fill it
   useEffect(() => {
-    if (!containerRef.current) return;
-    const ro = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect;
-        if (width > 0 && height > 0) {
-          setDimensions({ width: Math.floor(width), height: Math.floor(height) });
-        }
+    const measure = () => {
+      if (!containerRef.current) return;
+      const { clientWidth, clientHeight } = containerRef.current;
+      if (clientWidth > 0 && clientHeight > 0) {
+        setDimensions({ width: clientWidth, height: clientHeight });
       }
-    });
-    ro.observe(containerRef.current);
-    return () => ro.disconnect();
+    };
+
+    // Measure after layout settles
+    measure();
+    requestAnimationFrame(measure);
+
+    // Re-measure on window resize
+    window.addEventListener('resize', measure);
+
+    // Also use ResizeObserver for container-specific resizes (e.g. panel open/close)
+    let ro: ResizeObserver | undefined;
+    if (containerRef.current) {
+      ro = new ResizeObserver(() => measure());
+      ro.observe(containerRef.current);
+    }
+
+    return () => {
+      window.removeEventListener('resize', measure);
+      ro?.disconnect();
+    };
   }, []);
 
   const {
@@ -371,7 +386,7 @@ export default function Canvas() {
   return (
     <div
       ref={containerRef}
-      className="flex-1 relative overflow-hidden"
+      className="w-full h-full absolute inset-0 overflow-hidden"
       style={{ cursor: getCursorStyle() }}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
