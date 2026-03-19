@@ -65,7 +65,7 @@ export default function SaveModal({ isOpen, onClose, onSave }: SaveModalProps) {
             <button
               type="submit"
               className="flex-1 py-2 rounded-xl text-sm font-semibold text-white cursor-pointer transition-all hover:opacity-90"
-              style={{ background: '#818CF8' }}
+              style={{ background: '#926B7F' }}
             >
               Save
             </button>

@@ -50,7 +50,7 @@ function SprayStylePicker() {
             onClick={() => setSprayStyle(preset.style)}
             className={`flex flex-col items-center gap-0.5 rounded-lg px-1 py-1.5 text-center transition-all border-2 ${
               sprayStyle === preset.style
-                ? 'border-indigo-400 bg-indigo-50 shadow-sm'
+                ? 'border-[#BFA6B3] bg-[#FCCFE6]/30 shadow-sm'
                 : 'border-transparent bg-slate-50 hover:bg-slate-100'
             }`}
           >

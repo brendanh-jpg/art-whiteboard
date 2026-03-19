@@ -143,7 +143,7 @@ function WallpaperPreview({ wallpaper, isActive }: { wallpaper: typeof WALLPAPER
     <div style={base}>
       {ov && <div className="absolute inset-0" style={ov} />}
       {isActive && (
-        <div className="absolute inset-0 rounded-[10px]" style={{ border: '2px solid #818CF8', boxShadow: 'inset 0 0 0 1px rgba(129,140,248,0.4)' }} />
+        <div className="absolute inset-0 rounded-[10px]" style={{ border: '2px solid #926B7F', boxShadow: 'inset 0 0 0 1px rgba(146,107,127,0.4)' }} />
       )}
     </div>
   );
@@ -272,7 +272,7 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
             </div>
 
             {activeCategory === 'Feelings' && (
-              <div className="mx-4 mt-3 px-3 py-2 rounded-xl" style={{ background: 'rgba(244,114,182,0.08)', border: '1px solid rgba(244,114,182,0.2)' }}>
+              <div className="mx-4 mt-3 px-3 py-2 rounded-xl" style={{ background: 'rgba(146,107,127,0.08)', border: '1px solid rgba(146,107,127,0.2)' }}>
                 <p className="text-xs font-semibold text-pink">How are you feeling today? Tap a sticker to add it!</p>
               </div>
             )}
@@ -319,7 +319,7 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
 
         {activeTab === 'wallpaper' && (
           <div className="p-4 space-y-4 panel-animate">
-            <div className="px-3 py-2.5 rounded-xl" style={{ background: 'rgba(192,132,252,0.08)', border: '1px solid rgba(192,132,252,0.2)' }}>
+            <div className="px-3 py-2.5 rounded-xl" style={{ background: 'rgba(158,121,140,0.08)', border: '1px solid rgba(158,121,140,0.2)' }}>
               <p className="text-xs font-semibold text-accent-2">Pick a pattern, then paint it onto the canvas like a roller!</p>
             </div>
 
@@ -353,10 +353,10 @@ export default function RightPanel({ activeTab, onClose }: RightPanelProps) {
                   }`}
                   style={{
                     border: selectedWallpaper === wp.id
-                      ? '1px solid rgba(129,140,248,0.5)'
+                      ? '1px solid rgba(146,107,127,0.5)'
                       : '1px solid rgba(0,0,0,0.06)',
                     background: selectedWallpaper === wp.id
-                      ? 'rgba(129,140,248,0.08)'
+                      ? 'rgba(146,107,127,0.08)'
                       : 'rgba(0,0,0,0.02)',
                   }}
                 >

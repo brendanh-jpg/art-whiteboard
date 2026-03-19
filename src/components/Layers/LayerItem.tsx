@@ -22,8 +22,8 @@ export default function LayerItem({
       onClick={onSelect}
       className="flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer transition-all"
       style={{
-        background: isActive ? 'rgba(129,140,248,0.1)' : 'rgba(0,0,0,0.02)',
-        border: isActive ? '1px solid rgba(129,140,248,0.35)' : '1px solid rgba(0,0,0,0.06)',
+        background: isActive ? 'rgba(146,107,127,0.1)' : 'rgba(0,0,0,0.02)',
+        border: isActive ? '1px solid rgba(146,107,127,0.35)' : '1px solid rgba(0,0,0,0.06)',
       }}
     >
       <button
@@ -48,7 +48,7 @@ export default function LayerItem({
       ) : (
         <span
           className="flex-1 text-xs font-semibold truncate"
-          style={{ color: isActive ? 'rgba(129,140,248,0.9)' : '#475569' }}
+          style={{ color: isActive ? 'rgba(146,107,127,0.9)' : '#475569' }}
           onDoubleClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
           title="Double-click to rename"
         >

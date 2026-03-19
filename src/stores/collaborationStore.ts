@@ -18,8 +18,8 @@ export interface Reaction {
 }
 
 const USER_COLORS = [
-  '#818CF8', '#F472B6', '#34D399', '#FBBF24', '#F87171',
-  '#A78BFA', '#60A5FA', '#FB923C', '#2DD4BF', '#E879F9',
+  '#926B7F', '#BFA6B3', '#34D399', '#FBBF24', '#F87171',
+  '#9E798C', '#60A5FA', '#FB923C', '#2DD4BF', '#EBCCDC',
 ];
 
 function getStoredName(): string {

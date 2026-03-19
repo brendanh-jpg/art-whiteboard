@@ -83,7 +83,7 @@ export default function ColorPalette({ size = 'md', toolbarWidth = 140 }: ColorP
             key={c}
             onClick={() => handleColorSelect(c)}
             className={`rounded-md cursor-pointer transition-all duration-100 hover:scale-110 hover:z-10 relative ${
-              color === c ? 'scale-110 ring-2 ring-indigo-500 ring-offset-1 ring-offset-white z-10' : ''
+              color === c ? 'scale-110 ring-2 ring-[#926B7F] ring-offset-1 ring-offset-white z-10' : ''
             }`}
             style={{
               backgroundColor: c,
@@ -104,7 +104,7 @@ export default function ColorPalette({ size = 'md', toolbarWidth = 140 }: ColorP
               <button
                 key={`${c}-${i}`}
                 onClick={() => handleColorSelect(c)}
-                className={`rounded-md cursor-pointer transition-all hover:scale-110 ${color === c ? 'ring-1 ring-indigo-500 ring-offset-1 ring-offset-white' : ''}`}
+                className={`rounded-md cursor-pointer transition-all hover:scale-110 ${color === c ? 'ring-1 ring-[#926B7F] ring-offset-1 ring-offset-white' : ''}`}
                 style={{ backgroundColor: c, width: 18, height: 18, border: '1px solid rgba(0,0,0,0.1)' }}
                 title={c}
               />

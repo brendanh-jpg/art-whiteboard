@@ -1,25 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas-bg: #F7F6F3;
+  --color-canvas-bg: #F7F8F8;
   --color-surface: #FFFFFF;
-  --color-surface-2: #F8FAFC;
-  --color-surface-3: #F1F5F9;
+  --color-surface-2: #F7F8F8;
+  --color-surface-3: #F0F0F0;
   --color-panel-bg: #FFFFFF;
   --color-panel-border: rgba(0,0,0,0.08);
   --color-panel-hover: rgba(0,0,0,0.04);
-  --color-accent: #818CF8;
-  --color-accent-2: #C084FC;
-  --color-pink: #F472B6;
+  --color-accent: #926B7F;
+  --color-accent-2: #9E798C;
+  --color-pink: #926B7F;
   --color-teal: #34D399;
   --color-orange: #FB923C;
-  --color-text-primary: #1e293b;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
-  --color-cream: #F7F6F3;
-  --color-electric-blue: #818CF8;
-  --color-hot-pink: #F472B6;
+  --color-text-primary: #172337;
+  --color-text-secondary: #33475B;
+  --color-text-muted: #809BA8;
+  --color-cream: #F7F8F8;
+  --color-electric-blue: #926B7F;
+  --color-hot-pink: #926B7F;
   --color-lime: #34D399;
+  --color-mauve-light: #BFA6B3;
+  --color-mauve-soft: #EBCCDC;
+  --color-rose-soft: #FCCFE6;
   --font-display: 'Fredoka', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-fun: 'Fredoka', sans-serif;
@@ -49,8 +52,8 @@ html, body, #root {
 
 /* Tool active pulse */
 @keyframes activeGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(129,140,248,0); }
-  50% { box-shadow: 0 0 0 3px rgba(129,140,248,0.25); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(146,107,127,0); }
+  50% { box-shadow: 0 0 0 3px rgba(146,107,127,0.25); }
 }
 .tool-active-glow {
   animation: activeGlow 2s ease-in-out infinite;
@@ -146,7 +149,7 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
-input[type="range"].track-accent { background: linear-gradient(to right, #818CF8, #C084FC); }
-input[type="range"].track-pink { background: linear-gradient(to right, #F472B6, #FB7185); }
+input[type="range"].track-accent { background: linear-gradient(to right, #926B7F, #BFA6B3); }
+input[type="range"].track-pink { background: linear-gradient(to right, #926B7F, #EBCCDC); }
 input[type="range"].track-teal { background: linear-gradient(to right, #34D399, #06B6D4); }
 input[type="range"].track-orange { background: linear-gradient(to right, #FB923C, #F59E0B); }
